@@ -41,7 +41,7 @@ TOTAL:            $110/Monat
 
 ## 📚 Dokumente
 
-### 1. [Planday Clone - Open Source Konzept](./planday-clone-open-source.md) ⭐
+### 1. [Planday Clone - Open Source Konzept](./CONCEPT.md) ⭐
 **HAUPT-DOKUMENT - Start hier!**
 - Komplett mit Clerk + Maileroo
 - Vollständiges Tech Stack
@@ -51,17 +51,19 @@ TOTAL:            $110/Monat
 - Railway Deployment
 - Kosten-Kalkulation
 
-### 2. [Tech Stack Vergleich](./tech-stack-vergleich.md)
+### 2. [Tech Stack Vergleich](./COMPARISON.md)
 - Clerk vs. Auth.js
 - Maileroo vs. SendGrid vs. Postal
 - Warum hybride Lösung optimal ist
 - ROI-Berechnung
 - Entscheidungsmatrix
 
-### 3. [Railway Deployment Guide](./railway-deployment-guide.md)
+### 3. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md)
 - Multi-Dockerfile Setup
 - Environment Variables
 - Service Configuration
+- CI/CD Pipeline (GitHub Actions)
+- Health Checks & Monitoring
 - Deployment Checkliste
 
 ### 4. [Railway Quick Setup](./RAILWAY-SETUP.md)
@@ -168,17 +170,21 @@ git push origin main
 ## 📖 Vollständige Dokumentation
 
 ### Hauptdokument:
-📄 [**Planday Clone - Open Source Konzept**](./planday-clone-open-source.md)
+📄 [**Planday Clone - Open Source Konzept**](./CONCEPT.md)
 - Alles was du brauchst!
 - Clerk Integration
 - Maileroo Setup
 - Datenbank-Schema
 - API-Struktur
 - Railway Deployment
+- Security & Compliance (Rate Limiting, GDPR, Audit Logging)
+- Testing Strategy (Unit, Integration, E2E)
+- Error Handling & Logging
+- Database Migrations
 
 ### Support-Dokumente:
-1. [Tech Stack Vergleich](./tech-stack-vergleich.md) - Warum diese Wahl?
-2. [Railway Deployment Guide](./railway-deployment-guide.md) - Detailliertes Deployment
+1. [Tech Stack Vergleich](./COMPARISON.md) - Warum diese Wahl?
+2. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md) - Detailliertes Deployment (inkl. CI/CD, Health Checks, Monitoring)
 3. [Railway Quick Setup](./RAILWAY-SETUP.md) - 15 Min Setup
 4. [Quick Start Guide](./quick-start-guide.md) - Lokale Entwicklung
 
