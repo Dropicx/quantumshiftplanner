@@ -84,13 +84,20 @@ export class ReportProcessorService {
     // await this.sendReportEmail(userId, type, downloadUrl);
   }
 
-  private parseRedisUrl(url: string): { host: string; port: number } {
+  private parseRedisUrl(url: string): { host: string; port: number; password?: string } {
     try {
       const parsedUrl = new URL(url);
-      return {
+      const config: { host: string; port: number; password?: string } = {
         host: parsedUrl.hostname,
         port: parseInt(parsedUrl.port || '6379', 10),
       };
+
+      // Extract password from URL (format: redis://:password@host:port or redis://user:password@host:port)
+      if (parsedUrl.password) {
+        config.password = parsedUrl.password;
+      }
+
+      return config;
     } catch {
       // Fallback to localhost if URL parsing fails
       return {
