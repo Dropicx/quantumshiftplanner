@@ -38,5 +38,11 @@
     "vitest": "^2.1.8",
     "@playwright/test": "^1.49.0"
   },
+  "pnpm": {
+    "overrides": {
+      "@esbuild-kit/core-utils": "npm:tsx@latest",
+      "@esbuild-kit/esm-loader": "npm:tsx@latest"
+    }
+  },
   "packageManager": "pnpm@9.14.4"
 }

@@ -1,12 +1,10 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import helmet from '@fastify/helmet';
-import cors from '@fastify/cors';
 
 import { AppModule } from './app.module';
 import { validateEnv } from '@planday/config';
@@ -21,13 +19,8 @@ async function bootstrap() {
     new FastifyAdapter({ logger: env.NODE_ENV === 'development' }),
   );
 
-  // Security: Helmet
-  await app.register(helmet, {
-    contentSecurityPolicy: false,
-  });
-
-  // CORS
-  await app.register(cors, {
+  // Enable CORS (simplified for now)
+  app.enableCors({
     origin: true,
     credentials: true,
   });
@@ -44,18 +37,18 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
-  // Swagger documentation
-  if (env.NODE_ENV === 'development') {
-    const config = new DocumentBuilder()
-      .setTitle('Planday Clone API')
-      .setDescription('Workforce Management System REST API')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
+  // Swagger documentation (disabled temporarily)
+  // if (env.NODE_ENV === 'development') {
+  //   const config = new DocumentBuilder()
+  //     .setTitle('Planday Clone API')
+  //     .setDescription('Workforce Management System REST API')
+  //     .setVersion('1.0')
+  //     .addBearerAuth()
+  //     .build();
 
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api/docs', app, document);
-  }
+  //   const document = SwaggerModule.createDocument(app, config);
+  //   SwaggerModule.setup('api/docs', app, document);
+  // }
 
   const port = parseInt(env.PORT, 10) || 4000;
   await app.listen(port, '0.0.0.0');
