@@ -2,6 +2,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RequestLoggerMiddleware } from './request-logger.middleware';
 
+// Mock types
+type MockRequest = {
+  headers: Record<string, string | string[] | undefined>;
+  correlationId?: string;
+};
+
+type MockResponse = {
+  header: ReturnType<typeof vi.fn>;
+};
+
+type MockNext = ReturnType<typeof vi.fn>;
+
 // Mock uuid
 vi.mock('uuid', () => ({
   v4: vi.fn(() => 'generated-uuid-1234'),
@@ -9,9 +21,9 @@ vi.mock('uuid', () => ({
 
 describe('RequestLoggerMiddleware', () => {
   let middleware: RequestLoggerMiddleware;
-  let mockRequest: any;
-  let mockResponse: any;
-  let mockNext: any;
+  let mockRequest: MockRequest;
+  let mockResponse: MockResponse;
+  let mockNext: MockNext;
 
   beforeEach(() => {
     middleware = new RequestLoggerMiddleware();
@@ -106,20 +118,20 @@ describe('RequestLoggerMiddleware', () => {
         return `generated-uuid-${callCount}`;
       });
 
-      const req1 = { headers: {} };
-      const res1 = { header: vi.fn() };
-      const next1 = vi.fn();
+      const req1: MockRequest = { headers: {} };
+      const res1: MockResponse = { header: vi.fn() };
+      const next1: MockNext = vi.fn();
 
-      const req2 = { headers: {} };
-      const res2 = { header: vi.fn() };
-      const next2 = vi.fn();
+      const req2: MockRequest = { headers: {} };
+      const res2: MockResponse = { header: vi.fn() };
+      const next2: MockNext = vi.fn();
 
-      middleware.use(req1 as any, res1 as any, next1);
-      middleware.use(req2 as any, res2 as any, next2);
+      middleware.use(req1 as never, res1 as never, next1);
+      middleware.use(req2 as never, res2 as never, next2);
 
-      expect((req1 as any).correlationId).toBe('generated-uuid-1');
-      expect((req2 as any).correlationId).toBe('generated-uuid-2');
-      expect((req1 as any).correlationId).not.toBe((req2 as any).correlationId);
+      expect(req1.correlationId).toBe('generated-uuid-1');
+      expect(req2.correlationId).toBe('generated-uuid-2');
+      expect(req1.correlationId).not.toBe(req2.correlationId);
     });
   });
 });

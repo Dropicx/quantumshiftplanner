@@ -27,19 +27,24 @@ ENV PORT=4000
 
 WORKDIR /app
 
-# Copy workspace configuration and lock file
+# Copy package.json files and workspace config
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/pnpm-lock.yaml ./
-
-# Copy package.json files for workspace structure
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/packages/types/package.json ./packages/types/
 COPY --from=builder /app/packages/config/package.json ./packages/config/
 COPY --from=builder /app/packages/database/package.json ./packages/database/
 
-# Install production dependencies (this properly sets up pnpm's virtual store)
-RUN pnpm install --frozen-lockfile --prod
+# Copy node_modules from builder (includes all workspace dependencies)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=builder /app/packages/types/node_modules ./packages/types/node_modules
+COPY --from=builder /app/packages/config/node_modules ./packages/config/node_modules
+COPY --from=builder /app/packages/database/node_modules ./packages/database/node_modules
+
+# Prune devDependencies to reduce image size
+RUN pnpm prune --prod
 
 # Copy built application
 COPY --from=builder /app/apps/api/dist ./apps/api/dist

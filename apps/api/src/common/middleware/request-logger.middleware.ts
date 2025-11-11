@@ -2,6 +2,11 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
 
+// Extend FastifyRequest with correlation ID
+interface RequestWithCorrelation extends FastifyRequest {
+  correlationId?: string;
+}
+
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
   use(req: FastifyRequest, res: FastifyReply, next: () => void) {
@@ -10,7 +15,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
       (req.headers['x-correlation-id'] as string) || uuidv4();
 
     // Attach correlation ID to request object
-    (req as any).correlationId = correlationId;
+    (req as RequestWithCorrelation).correlationId = correlationId;
 
     // Set correlation ID in response headers
     res.header('X-Correlation-ID', correlationId);
@@ -18,4 +23,3 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     next();
   }
 }
-

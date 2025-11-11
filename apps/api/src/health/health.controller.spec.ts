@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HealthController } from './health.controller';
+import { HealthService } from './health.service';
+
+// Mock service type
+type MockHealthService = Pick<HealthService, 'checkOverallHealth'>;
 
 describe('HealthController', () => {
   let controller: HealthController;
-  let mockHealthService: any;
+  let mockHealthService: MockHealthService;
 
   beforeEach(() => {
     // Create mock service with spy
@@ -26,7 +30,7 @@ describe('HealthController', () => {
     };
 
     // Manually instantiate controller with mock service
-    controller = new HealthController(mockHealthService);
+    controller = new HealthController(mockHealthService as HealthService);
   });
 
   describe('check', () => {

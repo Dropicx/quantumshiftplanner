@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { Env } from '@planday/config';
+
 import { HealthService } from './health.service';
 
 // Mock dependencies
 vi.mock('@planday/database', () => ({
   getDatabase: vi.fn().mockReturnValue({
-    execute: vi.fn().mockResolvedValue([] as any),
+    execute: vi.fn().mockResolvedValue([] as unknown[]),
   }),
 }));
 
@@ -17,7 +19,7 @@ vi.mock('@planday/config', () => ({
     CLERK_SECRET_KEY: 'sk_test_123',
     CLERK_PUBLISHABLE_KEY: 'pk_test_123',
     LOG_LEVEL: 'info',
-  }),
+  } as Env),
 }));
 
 // Mock ioredis
@@ -44,7 +46,7 @@ describe('HealthService', () => {
 
     const { getDatabase } = await import('@planday/database');
     const mockDb = getDatabase();
-    vi.mocked(mockDb.execute).mockResolvedValue([] as any);
+    vi.mocked(mockDb.execute).mockResolvedValue([] as unknown[]);
 
     process.env = { ...originalEnv };
     process.env.NODE_ENV = 'test';
@@ -99,7 +101,10 @@ describe('HealthService', () => {
 
       // Add a small delay to measure
       vi.mocked(mockDb.execute).mockImplementation(
-        (() => new Promise((resolve) => setTimeout(() => resolve([] as any), 10))) as any,
+        (() =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve([] as unknown[]), 10),
+          )) as ReturnType<typeof mockDb.execute>,
       );
 
       const result = await service.checkDatabase();
@@ -130,7 +135,7 @@ describe('HealthService', () => {
         CLERK_SECRET_KEY: 'sk_test_123',
         CLERK_PUBLISHABLE_KEY: 'pk_test_123',
         LOG_LEVEL: 'info',
-      } as any);
+      } as Env);
 
       const serviceWithoutRedis = new HealthService();
       const result = await serviceWithoutRedis.checkRedis();
@@ -147,7 +152,7 @@ describe('HealthService', () => {
         CLERK_SECRET_KEY: 'sk_test_123',
         CLERK_PUBLISHABLE_KEY: 'pk_test_123',
         LOG_LEVEL: 'info',
-      } as any);
+      } as Env);
     });
 
     it('should return unhealthy status when Redis ping fails', async () => {
@@ -223,8 +228,8 @@ describe('HealthService', () => {
       vi.mocked(mockDb.execute).mockImplementation((async () => {
         dbStartTime = Date.now();
         await new Promise((resolve) => setTimeout(resolve, 50));
-        return [] as any;
-      }) as any);
+        return [] as unknown[];
+      }) as ReturnType<typeof mockDb.execute>);
 
       mockPing.mockImplementation(async () => {
         redisStartTime = Date.now();
@@ -267,7 +272,7 @@ describe('HealthService', () => {
         CLERK_SECRET_KEY: 'sk_test_123',
         CLERK_PUBLISHABLE_KEY: 'pk_test_123',
         LOG_LEVEL: 'info',
-      } as any);
+      } as Env);
 
       const serviceWithoutRedis = new HealthService();
 
@@ -281,7 +286,7 @@ describe('HealthService', () => {
         CLERK_SECRET_KEY: 'sk_test_123',
         CLERK_PUBLISHABLE_KEY: 'pk_test_123',
         LOG_LEVEL: 'info',
-      } as any);
+      } as Env);
     });
   });
 });
