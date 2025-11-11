@@ -9,15 +9,86 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { sql } from 'drizzle-orm';
+import Redis from 'ioredis';
 
 import { validateEnv } from '@planday/config';
+import { getDatabase } from '@planday/database';
 
 import { AppModule } from './app.module';
 import { AppLoggerService } from './common/logger/logger.service';
 
+async function checkStartupHealth(env: ReturnType<typeof validateEnv>) {
+  // eslint-disable-next-line no-console
+  console.log('🔍 [API] Checking startup health...');
+
+  // Check PostgreSQL connection
+  try {
+    // eslint-disable-next-line no-console
+    console.log('🔗 [API] Checking PostgreSQL connection...');
+    const db = getDatabase();
+    await db.execute(sql`SELECT 1`);
+    // eslint-disable-next-line no-console
+    console.log('✅ [API] PostgreSQL connection successful');
+  } catch (error) {
+    console.error(
+      '❌ [API] PostgreSQL connection failed:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
+    console.error('❌ [API] Cannot start without database connection');
+    process.exit(1);
+  }
+
+  // Check Redis connection (optional service)
+  if (env.REDIS_URL) {
+    try {
+      // eslint-disable-next-line no-console
+      console.log('🔗 [API] Checking Redis connection...');
+      const redis = new Redis(env.REDIS_URL, {
+        connectTimeout: 5000,
+        maxRetriesPerRequest: 1,
+        retryStrategy: () => null,
+      });
+
+      const result = await Promise.race([
+        redis.ping(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Redis ping timeout')), 5000),
+        ),
+      ]);
+
+      if (result === 'PONG') {
+        // eslint-disable-next-line no-console
+        console.log('✅ [API] Redis connection successful');
+      } else {
+        console.warn('⚠️  [API] Redis ping returned unexpected result');
+      }
+
+      await redis.quit();
+    } catch (error) {
+      console.warn(
+        '⚠️  [API] Redis connection failed:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+      console.warn(
+        '⚠️  [API] Server will continue without Redis (caching disabled)',
+      );
+    }
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('ℹ️  [API] Redis not configured (optional service)');
+  }
+
+  // eslint-disable-next-line no-console
+  console.log('✅ [API] Startup health check completed\n');
+}
+
 async function bootstrap() {
   // Validate environment variables
   const env = validateEnv();
+
+  // Check startup health before starting server
+  await checkStartupHealth(env);
 
   // Create NestJS app with Fastify
   const app = await NestFactory.create<NestFastifyApplication>(
