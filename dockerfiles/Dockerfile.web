@@ -15,10 +15,13 @@ RUN pnpm install --frozen-lockfile
 
 # Builder stage
 FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
+# Copy all source code
 COPY . .
 
-# Build packages first
+# Copy node_modules from deps stage (pnpm hoists to root)
+COPY --from=deps /app/node_modules ./node_modules
+
+# Build packages first (dependencies should now be available)
 RUN pnpm --filter @planday/types build
 RUN pnpm --filter @planday/config build
 
