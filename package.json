@@ -27,20 +27,32 @@
     "db:push": "pnpm --filter @planday/database db:push",
     "db:studio": "pnpm --filter @planday/database db:studio",
     "clean": "pnpm --recursive exec rm -rf dist .next .turbo node_modules && rm -rf node_modules",
-    "clean:build": "pnpm --recursive exec rm -rf dist .next .turbo"
+    "clean:build": "pnpm --recursive exec rm -rf dist .next .turbo",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@playwright/test": "^1.49.0",
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.3.3",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8",
-    "@playwright/test": "^1.49.0"
+    "vitest": "^2.1.8"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "pnpm": {
     "overrides": {

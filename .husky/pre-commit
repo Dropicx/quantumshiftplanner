@@ -1,0 +1,2 @@
+# Run lint-staged to check and format only staged files
+pnpm exec lint-staged

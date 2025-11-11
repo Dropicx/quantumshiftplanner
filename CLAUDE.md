@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Tech Stack
 
 ### Frontend Web
+
 - **Next.js 15** (App Router, React Server Components)
 - **React 19** with TypeScript 5.7
 - **Tailwind CSS 4.0** + shadcn/ui
@@ -20,12 +21,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **@dnd-kit/core** for drag-and-drop
 
 ### Mobile Apps
+
 - **React Native 0.76.x** with Expo SDK 52
 - **Expo Router** for file-based routing
 - Native features: expo-location (GPS), expo-camera (check-in photos), expo-notifications (push)
 - **react-native-firebase** for FCM push notifications
 
 ### Backend API
+
 - **NestJS 10.x** with Fastify
 - **TypeScript 5.7** on Node.js 22.x LTS
 - **Drizzle ORM** for database access (type-safe)
@@ -33,6 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Testing: Vitest (unit/integration), Playwright (E2E)
 
 ### Infrastructure
+
 - **PostgreSQL 17** (primary database)
 - **Redis 7.4** (caching, sessions, job queue)
 - **Clerk** (authentication, organizations, payments)
@@ -42,6 +46,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Railway** (hosting platform)
 
 ### Monitoring
+
 - Prometheus (metrics)
 - Grafana (dashboards)
 - Loki (logs)
@@ -127,12 +132,26 @@ pnpm type-check
 # Linting
 pnpm lint
 
+# Auto-fix linting issues
+pnpm lint:fix
+
 # Format code
 pnpm format
+
+# Check formatting without modifying files
+pnpm format:check
 
 # Run all quality checks before commit
 pnpm type-check && pnpm lint && pnpm test:unit
 ```
+
+**Pre-commit Hooks**: This project uses Husky and lint-staged to automatically run linting and formatting checks on staged files before each commit. This ensures code quality without needing to remember manual checks. The hooks will:
+
+- Run ESLint with auto-fix on staged TypeScript files
+- Run Prettier to format all staged files
+- Only process files you're actually committing (fast!)
+
+The hooks are automatically installed when you run `pnpm install` via the `prepare` script.
 
 ### Database Management
 
@@ -186,6 +205,7 @@ The system follows a **microservices-inspired monorepo** pattern:
 ### Database Schema
 
 Key tables (see CONCEPT.md for full schema):
+
 - `users` - synced from Clerk via webhooks (stores `clerkUserId`)
 - `organizations` - multi-tenancy support
 - `employees` - workforce members
@@ -211,6 +231,7 @@ Key tables (see CONCEPT.md for full schema):
 ### Background Jobs
 
 BullMQ job types (handled by worker service):
+
 - Email notifications (via Maileroo)
 - Report generation (payroll, analytics)
 - Data cleanup and archival
@@ -220,18 +241,21 @@ BullMQ job types (handled by worker service):
 ## Key Integration Points
 
 ### Clerk Integration
+
 - User authentication and session management
 - Organization (tenant) management
 - Subscription billing via Stripe (managed by Clerk)
 - Webhooks for user sync: `POST /api/webhooks/clerk`
 
 ### Maileroo Integration
+
 - Transactional emails (shift notifications, password resets)
 - Marketing emails (announcements, updates)
 - Template-based email system
 - Webhook handling for bounce/delivery tracking
 
 ### Firebase FCM
+
 - Push notifications for mobile apps
 - Handled in worker service via background jobs
 - Token storage in Redis with user association
@@ -239,16 +263,19 @@ BullMQ job types (handled by worker service):
 ## Testing Strategy
 
 ### Unit Tests (Vitest)
+
 - Test individual functions and components
 - Target: ≥80% code coverage
 - Mock external dependencies (Clerk, Maileroo, Redis)
 
 ### Integration Tests (Vitest)
+
 - Test API endpoints with real database (test DB)
 - Test background job processing
 - Target: ≥70% coverage of critical paths
 
 ### E2E Tests (Playwright)
+
 - Test complete user workflows (login, shift creation, swap)
 - Test across browsers (Chrome, Firefox, Safari)
 - Run against staging environment
@@ -256,12 +283,15 @@ BullMQ job types (handled by worker service):
 ## Important Conventions
 
 ### File Naming
+
 - React components: `PascalCase.tsx` (e.g., `ShiftCalendar.tsx`)
 - Utilities/hooks: `camelCase.ts` (e.g., `useAuth.ts`)
 - API routes: `kebab-case.ts` (e.g., `shift-swaps.controller.ts`)
 
 ### Commit Messages
+
 Follow Conventional Commits:
+
 ```
 feat(shifts): add drag-and-drop shift assignment
 fix(auth): resolve Clerk webhook signature verification
@@ -270,6 +300,7 @@ test(shifts): add E2E test for shift swap flow
 ```
 
 ### Environment Variables
+
 - Never commit `.env` files
 - Document all required vars in `.env.example`
 - Clerk keys prefixed: `NEXT_PUBLIC_CLERK_*` (client) or `CLERK_*` (server)
@@ -336,6 +367,7 @@ When implementing features, always reference the relevant documentation for desi
 ## Cost Optimization
 
 The hybrid SaaS + open-source approach targets **~€100/month for 1000 users**:
+
 - Clerk: $45/month (auth + organizations)
 - Maileroo: $9/month (email delivery)
 - Railway: $50/month (hosting PostgreSQL, Redis, services)
