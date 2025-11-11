@@ -66,10 +66,10 @@ TOTAL:            $110/Monat
 - Health Checks & Monitoring
 - Deployment Checkliste
 
-### 4. [Railway Quick Setup](./RAILWAY-SETUP.md)
-- 15 Minuten Setup
-- Copy & Paste Commands
-- Troubleshooting
+### 4. [Quick Start Guide](./QUICK_START.md)
+- Lokale Entwicklungsumgebung Setup
+- Development Workflow
+- Testing und Debugging
 
 ---
 
@@ -170,7 +170,7 @@ git push origin main
 ## 📖 Vollständige Dokumentation
 
 ### Hauptdokument:
-📄 [**Planday Clone - Open Source Konzept**](./CONCEPT.md)
+📄 [**Planday Clone - Konzept**](./CONCEPT.md)
 - Alles was du brauchst!
 - Clerk Integration
 - Maileroo Setup
@@ -182,11 +182,34 @@ git push origin main
 - Error Handling & Logging
 - Database Migrations
 
-### Support-Dokumente:
-1. [Tech Stack Vergleich](./COMPARISON.md) - Warum diese Wahl?
-2. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md) - Detailliertes Deployment (inkl. CI/CD, Health Checks, Monitoring)
-3. [Railway Quick Setup](./RAILWAY-SETUP.md) - 15 Min Setup
-4. [Quick Start Guide](./quick-start-guide.md) - Lokale Entwicklung
+### Getting Started:
+1. [Quick Start Guide](./QUICK_START.md) - Lokale Entwicklung Setup
+2. [Contributing Guide](./CONTRIBUTING.md) - Developer Onboarding
+
+### Architecture & Implementation:
+3. [Tech Stack Vergleich](./COMPARISON.md) - Warum diese Wahl?
+4. [Authentication Flow](./AUTH_FLOW.md) - Clerk Integration Details
+5. [API Reference](./API_REFERENCE.md) - Complete REST API
+6. [Mobile Architecture](./MOBILE_ARCHITECTURE.md) - React Native App
+7. [Real-time Communication](./REALTIME.md) - Socket.io Implementation
+8. [File Upload](./FILE_UPLOAD.md) - Cloudflare R2 Integration
+
+### Operations & Deployment:
+9. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md) - Detailliertes Deployment
+10. [Performance Optimization](./PERFORMANCE.md) - Optimization & Benchmarks
+11. [Monitoring](./MONITORING.md) - Grafana & Observability
+12. [Backup & Recovery](./BACKUP_RECOVERY.md) - Disaster Recovery Plan
+13. [Scaling](./SCALING.md) - Horizontal & Vertical Scaling
+
+### Security & Compliance:
+14. [Security Policy](./SECURITY.md) - Vulnerability Reporting
+15. [Compliance](./COMPLIANCE.md) - GDPR & Legal
+16. [Accessibility](./ACCESSIBILITY.md) - WCAG 2.1 Guidelines
+
+### Advanced Topics:
+17. [Migration Guide](./MIGRATION_GUIDE.md) - Import from Competitors
+18. [Internationalization](./INTERNATIONALIZATION.md) - i18n Strategy
+19. [Troubleshooting](./TROUBLESHOOTING.md) - Common Issues
 
 ---
 
@@ -250,11 +273,12 @@ git push origin main
 
 ## ✅ Next Steps
 
-1. 📖 **[Lies das Hauptdokument](./planday-clone-open-source.md)**
-2. 🔐 **Erstelle Clerk Account**
-3. 📧 **Erstelle Maileroo Account**
-4. 🚂 **Erstelle Railway Account**
-5. 💻 **Start Development!**
+1. 📖 **[Lies das Hauptdokument](./CONCEPT.md)**
+2. 🚀 **[Quick Start Guide](./QUICK_START.md)** - Setup lokale Entwicklung
+3. 🔐 **Erstelle Clerk Account** (https://clerk.com)
+4. 📧 **Erstelle Maileroo Account** (https://maileroo.com)
+5. 🚂 **Erstelle Railway Account** (https://railway.app)
+6. 💻 **Start Development!**
 
 ---
 

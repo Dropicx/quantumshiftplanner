@@ -447,7 +447,221 @@ export const subscriptions = pgTable('subscriptions', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// ... weitere Tables analog zum Original-Dokument
+// Schedules (Container for Shifts)
+export const schedules = pgTable('schedules', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  locationId: uuid('location_id').references(() => locations.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date').notNull(),
+  status: varchar('status', { length: 50 }).default('draft'), // draft, published, archived
+  isTemplate: boolean('is_template').default(false),
+  notes: text('notes'),
+  createdBy: uuid('created_by').references(() => users.id),
+  publishedAt: timestamp('published_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Positions (Job Roles)
+export const positions = pgTable('positions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  locationId: uuid('location_id').references(() => locations.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  color: varchar('color', { length: 7 }).default('#3b82f6'), // Hex color
+  requiredSkills: jsonb('required_skills').default([]),
+  hourlyRate: decimal('hourly_rate', { precision: 10, scale: 2 }),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Shift Types (Morning, Evening, Night, etc.)
+export const shiftTypes = pgTable('shift_types', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 100 }).notNull(),
+  shortCode: varchar('short_code', { length: 10 }), // M, E, N, etc.
+  color: varchar('color', { length: 7 }).default('#3b82f6'),
+  startTimeDefault: varchar('start_time_default', { length: 5 }), // HH:MM
+  endTimeDefault: varchar('end_time_default', { length: 5 }), // HH:MM
+  breakMinutesDefault: integer('break_minutes_default').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Availabilities (Employee availability preferences)
+export const availabilities = pgTable('availabilities', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  dayOfWeek: integer('day_of_week').notNull(), // 0-6 (Sunday-Saturday)
+  startTime: varchar('start_time', { length: 5 }), // HH:MM
+  endTime: varchar('end_time', { length: 5 }), // HH:MM
+  isAvailable: boolean('is_available').default(true),
+  repeatWeekly: boolean('repeat_weekly').default(true),
+  effectiveFrom: date('effective_from'),
+  effectiveTo: date('effective_to'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Leave Requests (Time-off, Vacation, Sick leave)
+export const leaveRequests = pgTable('leave_requests', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  leaveType: varchar('leave_type', { length: 50 }).notNull(), // vacation, sick, personal, unpaid
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date').notNull(),
+  totalDays: decimal('total_days', { precision: 5, scale: 2 }),
+  status: varchar('status', { length: 50 }).default('pending'), // pending, approved, rejected, cancelled
+  reason: text('reason'),
+  notes: text('notes'),
+  reviewedBy: uuid('reviewed_by').references(() => users.id),
+  reviewedAt: timestamp('reviewed_at'),
+  reviewNotes: text('review_notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Shift Swaps (Employee-to-Employee shift trading)
+export const shiftSwaps = pgTable('shift_swaps', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  originalShiftId: uuid('original_shift_id').references(() => shifts.id, { onDelete: 'cascade' }),
+  requestedBy: uuid('requested_by').references(() => employees.id, { onDelete: 'cascade' }),
+  requestedWith: uuid('requested_with').references(() => employees.id, { onDelete: 'set null' }),
+  offeredShiftId: uuid('offered_shift_id').references(() => shifts.id), // Optional: swap vs. give away
+  status: varchar('status', { length: 50 }).default('pending'), // pending, accepted, rejected, approved, cancelled
+  reason: text('reason'),
+  acceptedAt: timestamp('accepted_at'),
+  approvedBy: uuid('approved_by').references(() => users.id),
+  approvedAt: timestamp('approved_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Open Shift Requests (Employees request available shifts)
+export const openShiftRequests = pgTable('open_shift_requests', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  shiftId: uuid('shift_id').references(() => shifts.id, { onDelete: 'cascade' }),
+  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  status: varchar('status', { length: 50 }).default('pending'), // pending, approved, rejected
+  message: text('message'),
+  approvedBy: uuid('approved_by').references(() => users.id),
+  approvedAt: timestamp('approved_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Notifications
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  type: varchar('type', { length: 50 }).notNull(), // shift_assigned, shift_swap, leave_approved, etc.
+  title: varchar('title', { length: 255 }).notNull(),
+  body: text('body'),
+  actionUrl: text('action_url'),
+  isRead: boolean('is_read').default(false),
+  readAt: timestamp('read_at'),
+  metadata: jsonb('metadata').default({}),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Messages (In-app messaging)
+export const messages = pgTable('messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  threadId: uuid('thread_id'), // For grouping related messages
+  senderId: uuid('sender_id').references(() => users.id, { onDelete: 'cascade' }),
+  recipientId: uuid('recipient_id').references(() => users.id, { onDelete: 'cascade' }),
+  subject: varchar('subject', { length: 255 }),
+  body: text('body').notNull(),
+  isRead: boolean('is_read').default(false),
+  readAt: timestamp('read_at'),
+  attachments: jsonb('attachments').default([]),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Documents (File storage references)
+export const documents = pgTable('documents', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  uploadedBy: uuid('uploaded_by').references(() => users.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  type: varchar('type', { length: 50 }), // contract, certification, id_proof, etc.
+  mimeType: varchar('mime_type', { length: 100 }),
+  fileSize: integer('file_size'), // in bytes
+  storageUrl: text('storage_url').notNull(),
+  storageKey: text('storage_key').notNull(),
+  expiresAt: timestamp('expires_at'),
+  isArchived: boolean('is_archived').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Reports (Generated reports)
+export const reports = pgTable('reports', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  generatedBy: uuid('generated_by').references(() => users.id),
+  type: varchar('type', { length: 50 }).notNull(), // payroll, attendance, labor_cost, etc.
+  name: varchar('name', { length: 255 }).notNull(),
+  parameters: jsonb('parameters'), // Date range, filters, etc.
+  status: varchar('status', { length: 50 }).default('pending'), // pending, completed, failed
+  fileUrl: text('file_url'),
+  fileFormat: varchar('file_format', { length: 10 }), // pdf, xlsx, csv
+  errorMessage: text('error_message'),
+  completedAt: timestamp('completed_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Push Notification Tokens (FCM tokens)
+export const pushTokens = pgTable('push_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  platform: varchar('platform', { length: 20 }).notNull(), // ios, android, web
+  deviceId: varchar('device_id', { length: 255 }),
+  isActive: boolean('is_active').default(true),
+  lastUsedAt: timestamp('last_used_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Announcements (Company-wide or location-specific announcements)
+export const announcements = pgTable('announcements', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  locationId: uuid('location_id').references(() => locations.id), // NULL = all locations
+  title: varchar('title', { length: 255 }).notNull(),
+  body: text('body').notNull(),
+  priority: varchar('priority', { length: 20 }).default('normal'), // low, normal, high, urgent
+  publishedBy: uuid('published_by').references(() => users.id),
+  publishedAt: timestamp('published_at'),
+  expiresAt: timestamp('expires_at'),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Database Indexes (for performance optimization)
+// Note: These would be created separately in migration files
+
+// CREATE INDEX idx_shifts_employee_date ON shifts(employee_id, start_time);
+// CREATE INDEX idx_shifts_location_date ON shifts(location_id, start_time);
+// CREATE INDEX idx_shifts_organization_date ON shifts(organization_id, start_time);
+// CREATE INDEX idx_time_entries_employee ON time_entries(employee_id, clock_in_time);
+// CREATE INDEX idx_notifications_user_unread ON notifications(user_id, is_read);
+// CREATE INDEX idx_messages_recipient_unread ON messages(recipient_id, is_read);
+// CREATE INDEX idx_leave_requests_employee_status ON leave_requests(employee_id, status);
+// CREATE INDEX idx_documents_employee ON documents(employee_id, is_archived);
 ```
 
 ---
