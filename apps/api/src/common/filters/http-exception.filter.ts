@@ -7,6 +7,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
+
 import { AppLoggerService } from '../logger/logger.service';
 
 @Injectable()
