@@ -1,4 +1,8 @@
-import 'dotenv/config';
+// Only load dotenv in development (Railway provides env vars in production)
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv/config');
+}
+
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
