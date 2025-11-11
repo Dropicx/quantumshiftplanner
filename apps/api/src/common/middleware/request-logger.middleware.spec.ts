@@ -39,13 +39,26 @@ describe('RequestLoggerMiddleware', () => {
     mockNext = vi.fn();
   });
 
+  // Helper to call middleware with proper typing
+  const callMiddleware = (
+    req: MockRequest,
+    res: MockResponse,
+    next: MockNext,
+  ) => {
+    middleware.use(
+      req as unknown as never,
+      res as unknown as never,
+      next as never,
+    );
+  };
+
   it('should be defined', () => {
     expect(middleware).toBeDefined();
   });
 
   describe('use', () => {
     it('should generate correlation ID if not present', () => {
-      middleware.use(mockRequest, mockResponse, mockNext);
+      callMiddleware(mockRequest, mockResponse, mockNext);
 
       expect(mockRequest.correlationId).toBe('generated-uuid-1234');
       expect(mockResponse.header).toHaveBeenCalledWith(
@@ -58,7 +71,7 @@ describe('RequestLoggerMiddleware', () => {
     it('should use existing correlation ID from headers', () => {
       mockRequest.headers['x-correlation-id'] = 'existing-correlation-id';
 
-      middleware.use(mockRequest, mockResponse, mockNext);
+      callMiddleware(mockRequest, mockResponse, mockNext);
 
       expect(mockRequest.correlationId).toBe('existing-correlation-id');
       expect(mockResponse.header).toHaveBeenCalledWith(
@@ -69,15 +82,15 @@ describe('RequestLoggerMiddleware', () => {
     });
 
     it('should attach correlation ID to request object', () => {
-      middleware.use(mockRequest, mockResponse, mockNext);
+      callMiddleware(mockRequest, mockResponse, mockNext);
 
       expect(mockRequest).toHaveProperty('correlationId');
       expect(typeof mockRequest.correlationId).toBe('string');
-      expect(mockRequest.correlationId.length).toBeGreaterThan(0);
+      expect(mockRequest.correlationId!.length).toBeGreaterThan(0);
     });
 
     it('should set correlation ID in response headers', () => {
-      middleware.use(mockRequest, mockResponse, mockNext);
+      callMiddleware(mockRequest, mockResponse, mockNext);
 
       expect(mockResponse.header).toHaveBeenCalledWith(
         'X-Correlation-ID',
@@ -86,7 +99,7 @@ describe('RequestLoggerMiddleware', () => {
     });
 
     it('should call next middleware', () => {
-      middleware.use(mockRequest, mockResponse, mockNext);
+      callMiddleware(mockRequest, mockResponse, mockNext);
 
       expect(mockNext).toHaveBeenCalledTimes(1);
     });
@@ -94,16 +107,16 @@ describe('RequestLoggerMiddleware', () => {
     it('should handle uppercase header name', () => {
       mockRequest.headers['X-Correlation-ID'] = 'uppercase-correlation-id';
 
-      middleware.use(mockRequest, mockResponse, mockNext);
+      callMiddleware(mockRequest, mockResponse, mockNext);
 
       // Headers are typically lowercase in Node.js/Express
-      expect(mockRequest.correlationId).toBe('generated-uuid-1234');
+      expect(mockRequest.correlationId!).toBe('generated-uuid-1234');
     });
 
     it('should handle empty correlation ID from headers', () => {
       mockRequest.headers['x-correlation-id'] = '';
 
-      middleware.use(mockRequest, mockResponse, mockNext);
+      callMiddleware(mockRequest, mockResponse, mockNext);
 
       // Empty string is falsy, so should generate new UUID
       expect(mockRequest.correlationId).toBe('generated-uuid-1234');
@@ -126,8 +139,8 @@ describe('RequestLoggerMiddleware', () => {
       const res2: MockResponse = { header: vi.fn() };
       const next2: MockNext = vi.fn();
 
-      middleware.use(req1 as never, res1 as never, next1);
-      middleware.use(req2 as never, res2 as never, next2);
+      callMiddleware(req1, res1, next1);
+      callMiddleware(req2, res2, next2);
 
       expect(req1.correlationId).toBe('generated-uuid-1');
       expect(req2.correlationId).toBe('generated-uuid-2');

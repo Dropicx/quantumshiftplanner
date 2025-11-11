@@ -99,7 +99,7 @@ describe('HealthController', () => {
     });
 
     it('should throw HttpException when unhealthy', async () => {
-      mockHealthService.checkOverallHealth.mockResolvedValueOnce({
+      vi.mocked(mockHealthService.checkOverallHealth).mockResolvedValueOnce({
         status: 'unhealthy',
         timestamp: '2025-01-01T00:00:00.000Z',
         database: {

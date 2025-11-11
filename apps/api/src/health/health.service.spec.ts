@@ -7,7 +7,7 @@ import { HealthService } from './health.service';
 // Mock dependencies
 vi.mock('@planday/database', () => ({
   getDatabase: vi.fn().mockReturnValue({
-    execute: vi.fn().mockResolvedValue([] as unknown[]),
+    execute: vi.fn().mockResolvedValue([] as never),
   }),
 }));
 
@@ -46,7 +46,7 @@ describe('HealthService', () => {
 
     const { getDatabase } = await import('@planday/database');
     const mockDb = getDatabase();
-    vi.mocked(mockDb.execute).mockResolvedValue([] as unknown[]);
+    vi.mocked(mockDb.execute).mockResolvedValue([] as never);
 
     process.env = { ...originalEnv };
     process.env.NODE_ENV = 'test';
@@ -103,8 +103,8 @@ describe('HealthService', () => {
       vi.mocked(mockDb.execute).mockImplementation(
         (() =>
           new Promise((resolve) =>
-            setTimeout(() => resolve([] as unknown[]), 10),
-          )) as ReturnType<typeof mockDb.execute>,
+            setTimeout(() => resolve([] as never), 10),
+          )) as never,
       );
 
       const result = await service.checkDatabase();
@@ -228,8 +228,8 @@ describe('HealthService', () => {
       vi.mocked(mockDb.execute).mockImplementation((async () => {
         dbStartTime = Date.now();
         await new Promise((resolve) => setTimeout(resolve, 50));
-        return [] as unknown[];
-      }) as ReturnType<typeof mockDb.execute>);
+        return [] as never;
+      }) as never);
 
       mockPing.mockImplementation(async () => {
         redisStartTime = Date.now();
