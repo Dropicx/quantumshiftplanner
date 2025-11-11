@@ -5,12 +5,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 
 import { validateEnv } from '@planday/config';
+
 import { AppModule } from './app.module';
 
 async function bootstrap() {

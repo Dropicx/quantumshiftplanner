@@ -51,15 +51,11 @@ jobs:
       - name: Type checking
         run: pnpm type-check
 
-      # TODO: Fix ESLint module resolution issues in CI
-      # - name: Clean build outputs before linting
-      #   run: find . -type d -name "dist" -o -name ".next" | xargs rm -rf
+      - name: Linting
+        run: pnpm lint
 
-      # - name: Linting
-      #   run: pnpm lint
-
-      # - name: Format check
-      #   run: pnpm format:check || true
+      - name: Format check
+        run: pnpm format:check || true
 
   test:
     name: Run Tests
