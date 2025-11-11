@@ -10,6 +10,9 @@
   "scripts": {
     "dev": "pnpm --parallel --filter \"./apps/**\" dev",
     "build": "pnpm --filter \"./packages/**\" build && pnpm --filter \"./apps/**\" build",
+    "start:web": "pnpm --filter @planday/web start",
+    "start:api": "pnpm --filter @planday/api start",
+    "start:worker": "pnpm --filter @planday/worker start",
     "test": "pnpm --recursive test",
     "test:unit": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
