@@ -62,4 +62,5 @@ USER nestjs
 
 EXPOSE 4000
 
-CMD ["node", "apps/api/dist/main.js"]
+# Use ENTRYPOINT so Railway cannot override it
+ENTRYPOINT ["node", "apps/api/dist/main.js"]

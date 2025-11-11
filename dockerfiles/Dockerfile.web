@@ -40,4 +40,5 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "apps/web/server.js"]
+# Use ENTRYPOINT so Railway cannot override it
+ENTRYPOINT ["node", "apps/web/server.js"]
