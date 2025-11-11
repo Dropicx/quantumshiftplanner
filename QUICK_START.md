@@ -28,6 +28,7 @@ git --version
 ### Installation Links
 
 **macOS (Homebrew):**
+
 ```bash
 # Node.js via nvm (recommended)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -46,6 +47,7 @@ brew services start redis
 ```
 
 **Linux (Ubuntu/Debian):**
+
 ```bash
 # Node.js via nvm
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -72,6 +74,7 @@ sudo systemctl start redis-server
 ```
 
 **Windows:**
+
 ```powershell
 # Use WSL2 (recommended) and follow Linux instructions
 # Or install individually:
@@ -309,6 +312,7 @@ cp apps/worker/.env.example apps/worker/.env
 ### 2. Configure Environment Variables
 
 **apps/web/.env.local:**
+
 ```env
 # Database
 DATABASE_URL=postgresql://planday_user:your_local_password@localhost:5432/planday_dev
@@ -330,6 +334,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 **apps/api/.env:**
+
 ```env
 # Server
 NODE_ENV=development
@@ -370,25 +375,32 @@ FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
 **apps/worker/.env:**
+
 ```env
-# Database & Redis (same as API)
+# Core
+NODE_ENV=development
+PORT=4001
+
+# Database & Redis
 DATABASE_URL=postgresql://planday_user:your_local_password@localhost:5432/planday_dev
 REDIS_URL=redis://localhost:6379
 
-# Email (same as API)
-MAILEROO_API_KEY=your-maileroo-key
-EMAIL_FROM=dev@yourdomain.com
+# Clerk Authentication (for user sync in workers)
+CLERK_SECRET_KEY=sk_test_... # From Clerk Dashboard
+CLERK_PUBLISHABLE_KEY=pk_test_... # From Clerk Dashboard
 
-# Storage (same as API)
+# Maileroo Email Service
+MAILEROO_API_KEY=your-maileroo-api-key
+MAILEROO_FROM_EMAIL=dev@yourdomain.com
+
+# Firebase Cloud Messaging (Push Notifications)
+FCM_SERVER_KEY=your-fcm-server-key
+
+# Cloudflare R2 Storage (for report files - optional)
 R2_ACCOUNT_ID=your-account-id
 R2_ACCESS_KEY_ID=your-access-key
 R2_SECRET_ACCESS_KEY=your-secret-key
 R2_BUCKET_NAME=planday-dev
-
-# FCM (same as API)
-FCM_PROJECT_ID=your-project-id
-FCM_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
-FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
 ---
@@ -408,9 +420,14 @@ cd apps/api
 pnpm dev
 # Runs on http://localhost:3001
 
-# Terminal 3: Start Worker (BullMQ)
+# Terminal 3: Start Worker (BullMQ Background Jobs)
 cd apps/worker
 pnpm dev
+# Runs on http://localhost:4001
+# ✅ Fully implemented mit 3 Job Processors:
+#    - Email Queue (shift notifications, password resets)
+#    - Notification Queue (push notifications via FCM)
+#    - Report Queue (payroll, analytics reports)
 
 # Terminal 4: Redis (if not running as service)
 redis-server
@@ -553,12 +570,14 @@ pnpm exec playwright test --debug
 ### Database Tools
 
 **Drizzle Studio:**
+
 ```bash
 pnpm db:studio
 # Access at http://localhost:4983
 ```
 
 **pgAdmin (Optional):**
+
 ```bash
 # macOS
 brew install --cask pgadmin4
@@ -570,6 +589,7 @@ sudo apt install pgadmin4
 ```
 
 **Redis Commander (Optional):**
+
 ```bash
 npm install -g redis-commander
 redis-commander

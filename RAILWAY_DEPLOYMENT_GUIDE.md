@@ -3,6 +3,7 @@
 ## 🚂 Railway.app Übersicht
 
 Railway ist eine moderne PaaS-Plattform mit:
+
 - ✅ Git-basierte Deployments
 - ✅ Native Plugins (PostgreSQL, Redis, etc.)
 - ✅ Automatische SSL
@@ -253,103 +254,61 @@ restartPolicyMaxRetries = 10
 
 ## 📦 Worker Service Setup
 
-Erstelle `apps/worker/` für Background Jobs:
+✅ **Worker Service ist bereits implementiert!** (siehe `apps/worker/`)
+
+Der Worker Service nutzt **NestJS + BullMQ** für Background Job Processing:
+
+### Implementierte Job Processors
+
+**1. Email Processor** (`email-queue`)
+
+- Shift-Benachrichtigungen
+- Passwort-Reset Emails
+- Welcome Emails
+- Concurrency: 5 Jobs parallel
+
+**2. Notification Processor** (`notification-queue`)
+
+- Push Notifications via Firebase FCM
+- In-App Benachrichtigungen
+- Concurrency: 10 Jobs parallel
+
+**3. Report Processor** (`report-queue`)
+
+- Payroll Reports (PDF/CSV/XLSX)
+- Attendance Reports
+- Analytics Export
+- Concurrency: 2 Jobs parallel (ressourcenintensiv)
+
+### Architektur
 
 ```typescript
-// apps/worker/src/main.ts
-import { Worker } from 'bullmq';
-import Redis from 'ioredis';
+// apps/worker/src/main.ts (vereinfacht)
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
 
-const connection = new Redis(process.env.REDIS_URL!, {
-  maxRetriesPerRequest: null,
-});
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-// Email Worker
-const emailWorker = new Worker(
-  'email-queue',
-  async (job) => {
-    console.log('Processing email job:', job.id);
-    
-    const { to, subject, html } = job.data;
-    
-    // Send email using Postal or Amazon SES
-    await sendEmail({ to, subject, html });
-    
-    return { success: true };
-  },
-  { connection }
-);
+  // Minimal HTTP Server nur für Health Checks
+  app.setGlobalPrefix('api');
+  await app.listen(4001, '0.0.0.0');
 
-// Notification Worker
-const notificationWorker = new Worker(
-  'notification-queue',
-  async (job) => {
-    console.log('Processing notification job:', job.id);
-    
-    const { userId, title, body, type } = job.data;
-    
-    // Send push notification
-    await sendPushNotification({ userId, title, body, type });
-    
-    return { success: true };
-  },
-  { connection }
-);
-
-// Report Worker
-const reportWorker = new Worker(
-  'report-queue',
-  async (job) => {
-    console.log('Processing report job:', job.id);
-    
-    const { reportType, organizationId, dateRange } = job.data;
-    
-    // Generate report
-    const report = await generateReport({ reportType, organizationId, dateRange });
-    
-    // Upload to storage
-    await uploadReport(report);
-    
-    return { reportUrl: report.url };
-  },
-  { connection }
-);
-
-console.log('🚀 Workers started!');
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, closing workers...');
-  await emailWorker.close();
-  await notificationWorker.close();
-  await reportWorker.close();
-  process.exit(0);
-});
+  console.log('⚙️ Worker Service is running!');
+  console.log('🔄 Processing jobs from Redis...');
+}
 ```
 
-```json
-// apps/worker/package.json
-{
-  "name": "@planday/worker",
-  "version": "1.0.0",
-  "main": "dist/main.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/main.js",
-    "dev": "tsx watch src/main.ts"
-  },
-  "dependencies": {
-    "bullmq": "^5.22.0",
-    "ioredis": "^5.4.0",
-    "@planday/database": "workspace:*",
-    "@planday/types": "workspace:*"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.0",
-    "tsx": "^4.19.0",
-    "@types/node": "^22.0.0"
-  }
-}
+> **Vollständige Implementierung:** Siehe `apps/worker/src/` für den kompletten Code
+
+### Health Checks
+
+Der Worker Service bietet Health Check Endpoints für Railway:
+
+```bash
+GET /api/health        # Basic health check
+GET /api/health/ready  # Readiness probe (Redis connected)
+GET /api/health/live   # Liveness probe (Service running)
 ```
 
 ---
@@ -392,6 +351,7 @@ railway add --plugin postgresql
 ```
 
 **Environment Variables (automatisch):**
+
 ```
 DATABASE_URL
 POSTGRES_HOST
@@ -412,6 +372,7 @@ railway add --plugin redis
 ```
 
 **Environment Variables (automatisch):**
+
 ```
 REDIS_URL
 REDIS_HOST
@@ -422,6 +383,7 @@ REDIS_PASSWORD
 #### 3. Web Service (Next.js)
 
 **Via Dashboard:**
+
 1. New Service → GitHub Repo
 2. Settings → Environment:
    - `RAILWAY_DOCKERFILE_PATH` = `dockerfiles/Dockerfile.web`
@@ -438,6 +400,7 @@ NEXTAUTH_SECRET=<generate-with-openssl>
 #### 4. API Service (NestJS)
 
 **Via Dashboard:**
+
 1. New Service → GitHub Repo (same repo)
 2. Settings → Environment:
    - `RAILWAY_DOCKERFILE_PATH` = `dockerfiles/Dockerfile.api`
@@ -452,20 +415,48 @@ JWT_SECRET=<your-jwt-secret>
 CORS_ORIGIN=${{web.RAILWAY_PUBLIC_DOMAIN}}
 ```
 
-#### 5. Worker Service
+#### 5. Worker Service (Background Jobs)
 
 **Via Dashboard:**
+
 1. New Service → GitHub Repo (same repo)
-2. Settings → Environment:
+2. Settings → Root Directory: `/`
+3. Settings → Environment:
    - `RAILWAY_DOCKERFILE_PATH` = `dockerfiles/Dockerfile.worker`
-3. Add Environment Variables:
+4. Add Environment Variables:
 
 ```env
+# Core
 NODE_ENV=production
+PORT=8080
+
+# Database & Cache
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 REDIS_URL=${{Redis.REDIS_URL}}
-EMAIL_FROM=noreply@yourdomain.com
+
+# Clerk Authentication (für User Sync)
+CLERK_SECRET_KEY=<your-clerk-secret-key>
+CLERK_PUBLISHABLE_KEY=<your-clerk-publishable-key>
+
+# Maileroo Email Service
+MAILEROO_API_KEY=<your-maileroo-api-key>
+MAILEROO_FROM_EMAIL=noreply@yourdomain.com
+
+# Firebase Cloud Messaging (Push Notifications)
+FCM_SERVER_KEY=<your-fcm-server-key>
+
+# Cloudflare R2 (für Report Storage - optional)
+R2_ACCOUNT_ID=<your-account-id>
+R2_ACCESS_KEY_ID=<your-access-key>
+R2_SECRET_ACCESS_KEY=<your-secret-key>
+R2_BUCKET_NAME=<your-bucket-name>
 ```
+
+**Health Check Konfiguration:**
+
+- Health Check Path: `/api/health`
+- Port: `8080`
+- Timeout: `30s`
 
 ---
 
@@ -477,7 +468,7 @@ Railway nutzt **Template Variables** für Service-zu-Service Kommunikation:
 # In Web Service
 NEXT_PUBLIC_API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}
 
-# In API Service  
+# In API Service
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 REDIS_URL=${{Redis.REDIS_URL}}
 
@@ -487,6 +478,7 @@ REDIS_URL=${{Redis.REDIS_URL}}
 ```
 
 **Private Networking (für interne Kommunikation):**
+
 ```env
 # API intern erreichbar (kein HTTPS overhead)
 API_INTERNAL_URL=http://${{api.RAILWAY_PRIVATE_DOMAIN}}:3001
@@ -606,37 +598,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
-      
+
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Run linter
         run: pnpm run lint
-      
+
       - name: Run type check
         run: pnpm run type-check
-      
+
       - name: Run unit tests
         run: pnpm run test:unit
         env:
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
-      
+
       - name: Run integration tests
         run: pnpm run test:integration
         env:
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
@@ -647,24 +639,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
-      
+
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Build packages
         run: pnpm run build
-      
+
       - name: Build Docker images
         run: |
           docker build -f dockerfiles/Dockerfile.web -t web:latest .
@@ -677,10 +669,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-      
+
       - name: Deploy to Staging
         run: railway up --service staging --detach
         env:
@@ -692,15 +684,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-      
+
       - name: Run database migrations
         run: railway run --service api npm run db:migrate
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      
+
       - name: Deploy to Production
         run: railway up --service production --detach
         env:
@@ -725,22 +717,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-      
+
       - name: Create Preview Environment
         run: |
           railway environment create --name "pr-${{ github.event.pull_request.number }}"
           railway link --environment "pr-${{ github.event.pull_request.number }}"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      
+
       - name: Deploy Preview
         run: railway up --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      
+
       - name: Comment PR
         uses: actions/github-script@v6
         with:
@@ -758,7 +750,7 @@ jobs:
     steps:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-      
+
       - name: Delete Preview Environment
         run: |
           railway environment delete --name "pr-${{ github.event.pull_request.number }}" --yes
@@ -821,38 +813,143 @@ railway variables set LOG_LEVEL=warn --environment production
 }
 ```
 
-**Post-Deployment Verification:**
+## ✅ Post-Deployment Verification
 
-```typescript
-// scripts/verify-deployment.ts
-import { exec } from 'child_process';
-import { promisify } from 'util';
+Nach dem erfolgreichen Deployment alle 3 Services testen:
 
-const execAsync = promisify(exec);
+### 1. Web Service (Next.js)
 
-async function verifyDeployment() {
-  const healthUrl = process.env.HEALTH_CHECK_URL || 'https://api.railway.app/health';
-  
-  try {
-    const response = await fetch(healthUrl);
-    if (!response.ok) {
-      throw new Error(`Health check failed: ${response.status}`);
-    }
-    console.log('✅ Deployment verified');
-  } catch (error) {
-    console.error('❌ Deployment verification failed:', error);
-    process.exit(1);
-  }
+```bash
+# Browser öffnen
+https://your-web-service.railway.app
+
+# Erwartetes Ergebnis:
+# ✅ Next.js App lädt
+# ✅ Keine 500 Errors
+# ✅ Assets werden geladen (CSS, JS, Images)
+```
+
+### 2. API Service (NestJS)
+
+```bash
+# Health Check testen
+curl https://your-api-service.railway.app/api/health
+
+# Erwartetes Ergebnis:
+{
+  "status": "ok",
+  "timestamp": "2025-11-11T14:00:00.000Z",
+  "app": "Planday Clone",
+  "version": "1.0.0"
 }
 
-verifyDeployment();
+# Readiness Check
+curl https://your-api-service.railway.app/api/health/ready
+
+# Erwartetes Ergebnis:
+{
+  "status": "ready",
+  "database": "connected",
+  "redis": "connected"
+}
 ```
+
+### 3. Worker Service (BullMQ)
+
+```bash
+# Health Check testen
+curl https://your-worker-service.railway.app/api/health
+
+# Erwartetes Ergebnis:
+{
+  "status": "ok",
+  "timestamp": "2025-11-11T14:00:00.000Z",
+  "app": "Worker Service",
+  "version": "1.0.0"
+}
+
+# Worker Logs in Railway Dashboard prüfen:
+# Erwartete Log-Einträge:
+# ✅ "EmailProcessorService: ✅ Email processor started"
+# ✅ "NotificationProcessorService: ✅ Notification processor started"
+# ✅ "ReportProcessorService: ✅ Report processor started"
+# ✅ "All background workers started successfully"
+```
+
+### 4. Service-Verbindungen testen
+
+```bash
+# Von Web → API
+# Im Browser DevTools → Network Tab
+# API Calls sollten zu https://your-api-service.railway.app/api/* gehen
+
+# Von API → PostgreSQL
+# Logs prüfen auf "Database connected" ohne Errors
+
+# Von API → Redis
+# Logs prüfen auf "Redis connected" ohne Errors
+
+# Von Worker → Redis
+# Logs prüfen auf "Redis connected" und keine NOAUTH Errors
+
+# Von Worker → PostgreSQL
+# Logs prüfen auf "Database connected"
+```
+
+### 5. Automated Verification Script
+
+```bash
+# scripts/verify-deployment.sh
+#!/bin/bash
+
+WEB_URL="https://your-web-service.railway.app"
+API_URL="https://your-api-service.railway.app"
+WORKER_URL="https://your-worker-service.railway.app"
+
+echo "🔍 Verifying deployment..."
+
+# Test Web
+if curl -f -s "$WEB_URL" > /dev/null; then
+  echo "✅ Web Service: OK"
+else
+  echo "❌ Web Service: FAILED"
+  exit 1
+fi
+
+# Test API
+if curl -f -s "$API_URL/api/health" | grep -q "ok"; then
+  echo "✅ API Service: OK"
+else
+  echo "❌ API Service: FAILED"
+  exit 1
+fi
+
+# Test Worker
+if curl -f -s "$WORKER_URL/api/health" | grep -q "ok"; then
+  echo "✅ Worker Service: OK"
+else
+  echo "❌ Worker Service: FAILED"
+  exit 1
+fi
+
+echo "🎉 All services are healthy!"
+```
+
+### Troubleshooting häufige Probleme
+
+| Problem                                       | Lösung                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Worker: NOAUTH Authentication required**    | `REDIS_URL` muss Passwort enthalten: `redis://:password@host:port`                          |
+| **API: Cannot find module '@planday/config'** | pnpm virtual store issue. Rebuild mit `pnpm install --frozen-lockfile --prod` im Dockerfile |
+| **Web: 500 Internal Server Error**            | Check `NEXT_PUBLIC_API_URL` Environment Variable                                            |
+| **All Services: Database connection failed**  | `DATABASE_URL` von PostgreSQL Plugin korrekt referenziert?                                  |
 
 ---
 
 ## 💰 Railway Kosten
 
 ### Free Tier
+
 ```
 500 Stunden/Monat kostenlos
 = ~€5 Wert
@@ -860,6 +957,7 @@ Perfekt für Development/Testing
 ```
 
 ### Hobby Plan ($5/Monat)
+
 ```
 $5/Monat + Usage
 Keine Stunden-Limits
@@ -869,6 +967,7 @@ Ideal für kleine Projekte
 ### Kosten-Schätzung (Production)
 
 **Small (1000 User):**
+
 ```
 PostgreSQL: $5-10/Monat
 Redis: $5/Monat
@@ -880,6 +979,7 @@ Total: ~$30-55/Monat
 ```
 
 **Medium (10K User):**
+
 ```
 PostgreSQL: $20-30/Monat
 Redis: $10-15/Monat
@@ -901,7 +1001,11 @@ Total: ~$90-155/Monat
 ```typescript
 // apps/api/src/health/health.controller.ts
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheck, HealthCheckService, MemoryHealthIndicator } from '@nestjs/terminus';
+import {
+  HealthCheck,
+  HealthCheckService,
+  MemoryHealthIndicator,
+} from '@nestjs/terminus';
 import { DatabaseHealthIndicator } from './database.health';
 
 @Controller('health')
@@ -930,9 +1034,7 @@ export class HealthController {
   @Get('readiness')
   @HealthCheck()
   readiness() {
-    return this.health.check([
-      () => this.db.pingCheck('database'),
-    ]);
+    return this.health.check([() => this.db.pingCheck('database')]);
   }
 }
 ```
@@ -942,7 +1044,11 @@ export class HealthController {
 ```typescript
 // apps/api/src/health/database.health.ts
 import { Injectable } from '@nestjs/common';
-import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';
+import {
+  HealthIndicator,
+  HealthIndicatorResult,
+  HealthCheckError,
+} from '@nestjs/terminus';
 import { db } from '@planday/database';
 
 @Injectable()
@@ -953,7 +1059,10 @@ export class DatabaseHealthIndicator extends HealthIndicator {
       await db.execute('SELECT 1');
       return this.getStatus(key, true);
     } catch (error) {
-      throw new HealthCheckError('Database check failed', this.getStatus(key, false));
+      throw new HealthCheckError(
+        'Database check failed',
+        this.getStatus(key, false),
+      );
     }
   }
 }
@@ -990,6 +1099,7 @@ export async function GET() {
 ```
 
 **Via Railway Dashboard:**
+
 1. Service → Settings → Health Check
 2. Path: `/health`
 3. Timeout: 100 seconds
@@ -998,11 +1108,13 @@ export async function GET() {
 ### Liveness vs Readiness
 
 **Liveness Probe (`/health/liveness`):**
+
 - Prüft ob Service läuft
 - Einfache Antwort ohne externe Dependencies
 - Railway restartet Service bei Fehler
 
 **Readiness Probe (`/health/readiness`):**
+
 - Prüft ob Service bereit für Traffic
 - Prüft Database, Redis, etc.
 - Railway stoppt Traffic-Routing bei Fehler
@@ -1025,7 +1137,7 @@ async readiness() {
   ]);
 
   const isReady = checks.every(check => check.status === 'fulfilled');
-  
+
   if (!isReady) {
     throw new ServiceUnavailableException('Service not ready');
   }
@@ -1047,19 +1159,19 @@ groups:
         expr: up{job="api"} == 0
         for: 1m
         annotations:
-          summary: "Service is down"
-      
+          summary: 'Service is down'
+
       - alert: HealthCheckFailing
         expr: health_check_status{service="api"} == 0
         for: 2m
         annotations:
-          summary: "Health check is failing"
-      
+          summary: 'Health check is failing'
+
       - alert: DatabaseConnectionFailed
         expr: database_health_status == 0
         for: 1m
         annotations:
-          summary: "Database connection failed"
+          summary: 'Database connection failed'
 ```
 
 ---
@@ -1069,6 +1181,7 @@ groups:
 ### Railway Built-in Monitoring
 
 Railway bietet Built-in Monitoring:
+
 - ✅ CPU Usage
 - ✅ Memory Usage
 - ✅ Network Traffic
@@ -1218,7 +1331,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: 'rate(http_requests_total{status=~"5.."}[5m]) > 0.1'
-      
+
       - uid: slow_response_time
         title: Slow Response Time
         condition: A
@@ -1227,7 +1340,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: 'histogram_quantile(0.95, http_request_duration_seconds) > 1'
-      
+
       - uid: high_memory_usage
         title: High Memory Usage
         condition: A
@@ -1305,16 +1418,20 @@ export class LokiTransport extends Transport {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        streams: [{
-          labels: { service: 'api', level: info.level },
-          entries: [{
-            ts: new Date().toISOString(),
-            line: JSON.stringify(info),
-          }],
-        }],
+        streams: [
+          {
+            labels: { service: 'api', level: info.level },
+            entries: [
+              {
+                ts: new Date().toISOString(),
+                line: JSON.stringify(info),
+              },
+            ],
+          },
+        ],
       }),
     });
-    
+
     callback();
   }
 }
@@ -1329,9 +1446,11 @@ export class LokiTransport extends Transport {
     "panels": [
       {
         "title": "Error Logs",
-        "targets": [{
-          "expr": "{service=\"api\", level=\"error\"}"
-        }]
+        "targets": [
+          {
+            "expr": "{service=\"api\", level=\"error\"}"
+          }
+        ]
       }
     ]
   }
@@ -1462,6 +1581,7 @@ Railway managed SSL automatisch via Let's Encrypt!
 ### Vertical Scaling
 
 Railway skaliert automatisch bis zu:
+
 - 8 GB RAM
 - 8 vCPU
 
@@ -1500,6 +1620,7 @@ railway variables set DATABASE_PASSWORD=<secret>
 ## ✅ Fertig!
 
 Nach diesem Setup hast du:
+
 - ✅ Multi-Service Deployment auf Railway
 - ✅ Automatische CI/CD
 - ✅ Managed PostgreSQL & Redis
