@@ -65,5 +65,5 @@ USER nestjs
 
 EXPOSE 4000
 
-# Use shell script as entrypoint
-ENTRYPOINT ["/app/start-api.sh"]
+# Use direct node command as entrypoint
+ENTRYPOINT ["node", "apps/api/dist/src/main.js"]

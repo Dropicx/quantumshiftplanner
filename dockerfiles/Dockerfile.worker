@@ -60,4 +60,4 @@ COPY --from=builder --chown=worker:nodejs /app/packages/database/dist ./packages
 USER worker
 
 # Use ENTRYPOINT so Railway cannot override it
-ENTRYPOINT ["node", "apps/worker/dist/main.js"]
+ENTRYPOINT ["node", "apps/worker/dist/src/main.js"]
