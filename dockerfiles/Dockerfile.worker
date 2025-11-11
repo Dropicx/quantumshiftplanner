@@ -38,8 +38,7 @@ COPY --from=builder /app/packages/config/package.json ./packages/config/
 COPY --from=builder /app/packages/database/package.json ./packages/database/
 
 # Install production dependencies (this properly sets up pnpm's virtual store)
-# HUSKY=0: Skip husky git hooks installation (not needed in containers)
-RUN HUSKY=0 pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy built application
 COPY --from=builder /app/apps/worker/dist ./apps/worker/dist

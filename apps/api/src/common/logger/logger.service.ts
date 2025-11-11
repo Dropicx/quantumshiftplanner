@@ -127,7 +127,7 @@ export class AppLoggerService implements LoggerService {
   logWithMeta(
     level: 'info' | 'warn' | 'error' | 'debug' | 'verbose',
     message: string,
-    meta: Record<string, any>,
+    meta: Record<string, unknown>,
     context?: string,
     correlationId?: string,
   ) {

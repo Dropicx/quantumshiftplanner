@@ -14,7 +14,7 @@ export class LoggingInterceptor implements NestInterceptor {
   // eslint-disable-next-line no-unused-vars
   constructor(private readonly logger: AppLoggerService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest();
     const { method, url, body, query, params } = request;
     const correlationId = request.correlationId || 'unknown';
@@ -68,12 +68,12 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
-  private sanitizeBody(body: any): any {
+  private sanitizeBody(body: unknown): unknown {
     if (!body || typeof body !== 'object') {
       return body;
     }
 
-    const sanitized = { ...body };
+    const sanitized = { ...(body as Record<string, unknown>) };
     const sensitiveFields = [
       'password',
       'token',

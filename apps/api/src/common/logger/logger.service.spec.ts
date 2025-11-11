@@ -1,7 +1,15 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import * as winston from 'winston';
 
+import { Env } from '@planday/config';
+
 import { AppLoggerService, LoggerConfigService } from './logger.service';
+
+// Mock logger type
+type MockLogger = Pick<
+  winston.Logger,
+  'info' | 'error' | 'warn' | 'debug' | 'verbose'
+>;
 
 // Mock validateEnv
 vi.mock('@planday/config', () => ({
@@ -11,7 +19,7 @@ vi.mock('@planday/config', () => ({
     CLERK_SECRET_KEY: 'sk_test_123',
     CLERK_PUBLISHABLE_KEY: 'pk_test_123',
     LOG_LEVEL: 'info',
-  }),
+  } as Env),
 }));
 
 describe('LoggerConfigService', () => {
@@ -66,7 +74,7 @@ describe('LoggerConfigService', () => {
       CLERK_SECRET_KEY: 'sk_test_123',
       CLERK_PUBLISHABLE_KEY: 'pk_test_123',
       LOG_LEVEL: 'debug',
-    } as any);
+    } as Env);
 
     // Create new service instance to pick up new env vars
     const newService = new LoggerConfigService();
@@ -84,7 +92,9 @@ describe('LoggerConfigService', () => {
     const options = service.createWinstonModuleOptions();
 
     expect(Array.isArray(options.transports)).toBe(true);
-    expect((options.transports as any[]).length).toBeGreaterThan(0);
+    expect((options.transports as winston.transport[]).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it('should add file transports in production', async () => {
@@ -96,13 +106,13 @@ describe('LoggerConfigService', () => {
       CLERK_SECRET_KEY: 'sk_test_123',
       CLERK_PUBLISHABLE_KEY: 'pk_test_123',
       LOG_LEVEL: 'info',
-    } as any);
+    } as Env);
 
     const prodService = new LoggerConfigService();
     const options = prodService.createWinstonModuleOptions();
 
     // Should have console + 2 file transports (error + combined)
-    expect((options.transports as any[]).length).toBe(3);
+    expect((options.transports as winston.transport[]).length).toBe(3);
   });
 
   it('should not add file transports in development', async () => {
@@ -114,19 +124,19 @@ describe('LoggerConfigService', () => {
       CLERK_SECRET_KEY: 'sk_test_123',
       CLERK_PUBLISHABLE_KEY: 'pk_test_123',
       LOG_LEVEL: 'info',
-    } as any);
+    } as Env);
 
     const devService = new LoggerConfigService();
     const options = devService.createWinstonModuleOptions();
 
     // Should only have console transport
-    expect((options.transports as any[]).length).toBe(1);
+    expect((options.transports as winston.transport[]).length).toBe(1);
   });
 });
 
 describe('AppLoggerService', () => {
   let service: AppLoggerService;
-  let mockLogger: winston.Logger;
+  let mockLogger: MockLogger;
 
   beforeEach(() => {
     mockLogger = {
@@ -135,9 +145,9 @@ describe('AppLoggerService', () => {
       warn: vi.fn(),
       debug: vi.fn(),
       verbose: vi.fn(),
-    } as any;
+    };
 
-    service = new AppLoggerService(mockLogger);
+    service = new AppLoggerService(mockLogger as winston.Logger);
   });
 
   it('should be defined', () => {
