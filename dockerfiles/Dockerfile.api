@@ -58,9 +58,12 @@ COPY --from=builder --chown=nestjs:nodejs /app/packages/types/dist ./packages/ty
 COPY --from=builder --chown=nestjs:nodejs /app/packages/config/dist ./packages/config/dist
 COPY --from=builder --chown=nestjs:nodejs /app/packages/database/dist ./packages/database/dist
 
+# Copy start script
+COPY --chown=nestjs:nodejs start-api.sh ./start-api.sh
+
 USER nestjs
 
 EXPOSE 4000
 
-# Use ENTRYPOINT so Railway cannot override it
-ENTRYPOINT ["node", "apps/api/dist/main.js"]
+# Use shell script as entrypoint
+ENTRYPOINT ["/app/start-api.sh"]
