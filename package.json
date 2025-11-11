@@ -1,0 +1,42 @@
+{
+  "name": "quantumshiftplanner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Complete Workforce Management System - Planday Alternative",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/**\" dev",
+    "build": "pnpm --filter \"./packages/**\" build && pnpm --filter \"./apps/**\" build",
+    "test": "pnpm --recursive test",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "type-check": "pnpm --recursive --parallel run type-check",
+    "db:generate": "pnpm --filter @planday/database db:generate",
+    "db:migrate": "pnpm --filter @planday/database db:migrate",
+    "db:push": "pnpm --filter @planday/database db:push",
+    "db:studio": "pnpm --filter @planday/database db:studio",
+    "clean": "pnpm --recursive exec rm -rf dist .next .turbo node_modules && rm -rf node_modules",
+    "clean:build": "pnpm --recursive exec rm -rf dist .next .turbo"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "@playwright/test": "^1.49.0"
+  },
+  "packageManager": "pnpm@9.14.4"
+}
