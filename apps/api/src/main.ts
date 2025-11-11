@@ -9,11 +9,8 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { sql } from 'drizzle-orm';
-import Redis from 'ioredis';
 
 import { validateEnv } from '@planday/config';
-import { getDatabase } from '@planday/database';
 
 import { AppModule } from './app.module';
 import { AppLoggerService } from './common/logger/logger.service';
@@ -26,6 +23,11 @@ async function checkStartupHealth(env: ReturnType<typeof validateEnv>) {
   try {
     // eslint-disable-next-line no-console
     console.log('🔗 [API] Checking PostgreSQL connection...');
+
+    // Use dynamic imports to avoid module resolution issues at startup
+    const { getDatabase } = await import('@planday/database');
+    const { sql } = await import('drizzle-orm');
+
     const db = getDatabase();
     await db.execute(sql`SELECT 1`);
     // eslint-disable-next-line no-console
@@ -44,6 +46,10 @@ async function checkStartupHealth(env: ReturnType<typeof validateEnv>) {
     try {
       // eslint-disable-next-line no-console
       console.log('🔗 [API] Checking Redis connection...');
+
+      // Use dynamic import to avoid module resolution issues at startup
+      const Redis = (await import('ioredis')).default;
+
       const redis = new Redis(env.REDIS_URL, {
         connectTimeout: 5000,
         maxRetriesPerRequest: 1,
