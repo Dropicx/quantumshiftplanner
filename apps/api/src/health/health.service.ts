@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { getDatabase } from '@planday/database';
-import { validateEnv } from '@planday/config';
 import { sql } from 'drizzle-orm';
 import Redis from 'ioredis';
+
+import { validateEnv } from '@planday/config';
+import { getDatabase } from '@planday/database';
 
 export interface HealthCheckResult {
   status: 'healthy' | 'unhealthy';
@@ -24,7 +25,7 @@ export class HealthService {
           maxRetriesPerRequest: 1,
           retryStrategy: () => null, // Don't retry on health checks
         });
-      } catch (error) {
+      } catch {
         // Redis connection will be checked on demand
         this.redisClient = null;
       }
@@ -48,7 +49,8 @@ export class HealthService {
       const responseTime = Date.now() - startTime;
       return {
         status: 'unhealthy',
-        message: error instanceof Error ? error.message : 'Database connection failed',
+        message:
+          error instanceof Error ? error.message : 'Database connection failed',
         responseTime,
       };
     }
@@ -56,7 +58,7 @@ export class HealthService {
 
   async checkRedis(): Promise<HealthCheckResult> {
     const env = validateEnv();
-    
+
     // If Redis is not configured, return healthy (optional service)
     if (!env.REDIS_URL) {
       return {
@@ -66,7 +68,7 @@ export class HealthService {
     }
 
     const startTime = Date.now();
-    
+
     try {
       // Create a temporary client for health check if not already created
       if (!this.redisClient) {
@@ -104,7 +106,8 @@ export class HealthService {
       const responseTime = Date.now() - startTime;
       return {
         status: 'unhealthy',
-        message: error instanceof Error ? error.message : 'Redis connection failed',
+        message:
+          error instanceof Error ? error.message : 'Redis connection failed',
         responseTime,
       };
     }
@@ -142,4 +145,3 @@ export class HealthService {
     }
   }
 }
-

@@ -1,11 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
-import { HealthModule } from './health/health.module';
-import { LoggerModule } from './common/logger/logger.module';
-import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/logger/logger.interceptor';
+import { LoggerModule } from './common/logger/logger.module';
+import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [LoggerModule, HealthModule],

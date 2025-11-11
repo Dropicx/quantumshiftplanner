@@ -6,10 +6,12 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
 import { AppLoggerService } from './logger.service';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
+  // eslint-disable-next-line no-unused-vars
   constructor(private readonly logger: AppLoggerService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -35,7 +37,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap({
-        next: (_data) => {
+        next: () => {
           const responseTime = Date.now() - startTime;
           const response = context.switchToHttp().getResponse();
           const statusCode = response.statusCode;
@@ -72,7 +74,13 @@ export class LoggingInterceptor implements NestInterceptor {
     }
 
     const sanitized = { ...body };
-    const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'authorization'];
+    const sensitiveFields = [
+      'password',
+      'token',
+      'secret',
+      'apiKey',
+      'authorization',
+    ];
 
     for (const field of sensitiveFields) {
       if (sanitized[field]) {
@@ -83,4 +91,3 @@ export class LoggingInterceptor implements NestInterceptor {
     return sanitized;
   }
 }
-

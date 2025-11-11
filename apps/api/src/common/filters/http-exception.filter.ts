@@ -13,6 +13,7 @@ import { AppLoggerService } from '../logger/logger.service';
 @Injectable()
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  // eslint-disable-next-line no-unused-vars
   constructor(private readonly logger: AppLoggerService) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
@@ -21,7 +22,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<FastifyRequest>();
 
     // Get correlation ID from request (works with both Express and Fastify)
-    const correlationId = (request as any).correlationId || (request.raw as any)?.correlationId || 'unknown';
+    const correlationId =
+      (request as any).correlationId ||
+      (request.raw as any)?.correlationId ||
+      'unknown';
 
     // Determine status code and message
     const status =
@@ -41,8 +45,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         : { statusCode: status, ...message };
 
     // Determine log level based on status code
-    const logLevel =
-      status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info';
+    const logLevel = status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info';
 
     // Prepare log metadata
     const logMeta = {
@@ -66,14 +69,26 @@ export class HttpExceptionFilter implements ExceptionFilter {
         'ExceptionFilter',
         correlationId,
       );
-      this.logger.logWithMeta('error', 'Request details', logMeta, 'ExceptionFilter', correlationId);
+      this.logger.logWithMeta(
+        'error',
+        'Request details',
+        logMeta,
+        'ExceptionFilter',
+        correlationId,
+      );
     } else {
       this.logger.warn(
         `HTTP ${status} ${request.method} ${request.url} - ${JSON.stringify(errorResponse)}`,
         'ExceptionFilter',
         correlationId,
       );
-      this.logger.logWithMeta('warn', 'Request details', logMeta, 'ExceptionFilter', correlationId);
+      this.logger.logWithMeta(
+        'warn',
+        'Request details',
+        logMeta,
+        'ExceptionFilter',
+        correlationId,
+      );
     }
 
     // Send response
@@ -128,4 +143,3 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return sanitized;
   }
 }
-

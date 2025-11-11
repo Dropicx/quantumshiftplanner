@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { HttpExceptionFilter } from './http-exception.filter';
 import { AppLoggerService } from '../logger/logger.service';
+
+import { HttpExceptionFilter } from './http-exception.filter';
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
@@ -210,7 +211,10 @@ describe('HttpExceptionFilter', () => {
         error: 'Bad Request',
       };
 
-      const exception = new HttpException(errorResponse, HttpStatus.BAD_REQUEST);
+      const exception = new HttpException(
+        errorResponse,
+        HttpStatus.BAD_REQUEST,
+      );
 
       filter.catch(exception, mockHost);
 

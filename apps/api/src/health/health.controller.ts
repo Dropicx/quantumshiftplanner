@@ -1,12 +1,20 @@
-import { Controller, Get, HttpStatus, HttpCode, HttpException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  HttpCode,
+  HttpException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { config } from '@planday/config';
+
 import { HealthService } from './health.service';
 
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
+  // eslint-disable-next-line no-unused-vars
   constructor(private readonly healthService: HealthService) {}
 
   @Get()
@@ -29,7 +37,9 @@ export class HealthController {
   async ready() {
     const health = await this.healthService.checkOverallHealth();
     const statusCode =
-      health.status === 'healthy' ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+      health.status === 'healthy'
+        ? HttpStatus.OK
+        : HttpStatus.SERVICE_UNAVAILABLE;
 
     const response = {
       status: health.status,

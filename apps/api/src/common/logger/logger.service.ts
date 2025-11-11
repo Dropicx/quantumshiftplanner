@@ -1,7 +1,11 @@
 import { Injectable, LoggerService } from '@nestjs/common';
-import { WinstonModuleOptions, WinstonModuleOptionsFactory } from 'nest-winston';
+import {
+  WinstonModuleOptions,
+  WinstonModuleOptionsFactory,
+} from 'nest-winston';
 import * as winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+
 import { validateEnv } from '@planday/config';
 
 @Injectable()
@@ -25,9 +29,7 @@ export class LoggerConfigService implements WinstonModuleOptionsFactory {
       winston.format.printf(
         ({ timestamp, level, message, context, correlationId, ...meta }) => {
           const contextStr = context ? `[${context}]` : '';
-          const correlationStr = correlationId
-            ? `[${correlationId}]`
-            : '';
+          const correlationStr = correlationId ? `[${correlationId}]` : '';
           const metaStr = Object.keys(meta).length
             ? ` ${JSON.stringify(meta)}`
             : '';
@@ -88,6 +90,7 @@ export class LoggerConfigService implements WinstonModuleOptionsFactory {
 
 @Injectable()
 export class AppLoggerService implements LoggerService {
+  // eslint-disable-next-line no-unused-vars
   constructor(private readonly logger: winston.Logger) {}
 
   log(message: string, context?: string, correlationId?: string) {
@@ -135,4 +138,3 @@ export class AppLoggerService implements LoggerService {
     });
   }
 }
-
