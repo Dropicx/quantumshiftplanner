@@ -3,6 +3,7 @@
 ## Executive Summary
 
 Komplettes Workforce Management System mit **optimaler Balance** zwischen Open Source und bewährten SaaS-Tools:
+
 - ✅ **Clerk** für Auth + Payment (schnellere Time-to-Market)
 - ✅ **Maileroo** für Emails (günstig & zuverlässig)
 - ✅ **Open Source** für Rest (PostgreSQL, Redis, Monitoring, etc.)
@@ -17,72 +18,86 @@ Komplettes Workforce Management System mit **optimaler Balance** zwischen Open S
 ### 1.1 Frontend Web
 
 **Framework & Core:**
+
 - **Next.js 15** (App Router, React Server Components)
 - **React 19** (neueste)
 - **TypeScript 5.7** (neueste)
 - **Node.js 22.x LTS** (neueste)
 
 **UI & Styling:**
+
 - **Tailwind CSS 4.0** (neueste)
 - **shadcn/ui** (MIT License) + Radix UI
 - **Lucide Icons** (ISC License)
 - **Framer Motion 11.x** (MIT License)
 
 **State Management:**
+
 - **Zustand 5.x** (MIT License)
 - **TanStack Query v5** (MIT License)
 
 **Forms & Validation:**
+
 - **React Hook Form 7.x** (MIT License)
 - **Zod 3.x** (MIT License)
 
 **Calendar/Scheduling:**
+
 - **@fullcalendar/react 6.x** (MIT License)
 - **@dnd-kit/core** (MIT License) - Drag & Drop
 - **date-fns 4.x** (MIT License)
 
 **Charts:**
+
 - **Recharts 2.x** (MIT License)
 - **Apache ECharts** (Apache 2.0)
 
 **Real-time:**
+
 - **Socket.io 4.x Client** (MIT License)
 
 ### 1.2 Mobile Apps
 
 **Framework:**
+
 - **React Native 0.76.x** (MIT License)
 - **Expo SDK 52** (MIT License)
 - **Expo Router** (file-based routing)
 
 **State & Data:**
+
 - **Zustand 5.x** (MIT License)
 - **TanStack Query v5** (MIT License)
 
 **Native Features:**
+
 - **expo-location** - GPS/Geolocation
 - **expo-camera** - Check-in Fotos
 - **expo-notifications** - Push Notifications
 - **react-native-firebase** (Apache 2.0) - FCM
 
 **UI:**
+
 - **React Native Paper 5.x** (MIT License)
 - **Tamagui** (MIT License)
 
 ### 1.3 Backend API
 
 **Framework:**
+
 - **NestJS 10.x** (MIT License)
 - **Fastify** (MIT License) - schneller als Express
 - **TypeScript 5.7**
 - **Node.js 22.x LTS**
 
 **API Tools:**
+
 - **Swagger/OpenAPI 3.1** (Apache 2.0)
 - **Class-validator** (MIT License)
 - **Class-transformer** (MIT License)
 
 **Testing:**
+
 - **Vitest** (MIT License) - schneller als Jest
 - **Supertest** (MIT License)
 - **Playwright** (Apache 2.0) - E2E
@@ -92,6 +107,7 @@ Komplettes Workforce Management System mit **optimaler Balance** zwischen Open S
 **Clerk** - All-in-One Auth + Payment ✅
 
 **Warum Clerk?**
+
 - ✅ Auth + Payment in einem System
 - ✅ Pre-built UI Components (schnellere Entwicklung)
 - ✅ Multi-Tenancy Support
@@ -103,6 +119,7 @@ Komplettes Workforce Management System mit **optimaler Balance** zwischen Open S
 - ✅ Stripe Integration (managed)
 
 **Clerk Features:**
+
 ```typescript
 // Auth
 - Email/Password
@@ -124,11 +141,13 @@ Komplettes Workforce Management System mit **optimaler Balance** zwischen Open S
 ```
 
 **Pricing:**
+
 - **Free**: 10,000 MAU (Monthly Active Users)
 - **Pro**: $25/Monat + $0.02/MAU
 - **Enterprise**: Custom Pricing
 
 **Für 1000 aktive User:**
+
 ```
 $25/Monat (Base) + (1000 × $0.02) = $45/Monat
 ```
@@ -138,6 +157,7 @@ $25/Monat (Base) + (1000 × $0.02) = $45/Monat
 **Maileroo** - Email Delivery ✅
 
 **Warum Maileroo?**
+
 - ✅ Günstiger als SendGrid/Mailgun
 - ✅ Hervorragende Deliverability
 - ✅ DKIM, SPF, DMARC included
@@ -148,6 +168,7 @@ $25/Monat (Base) + (1000 × $0.02) = $45/Monat
 - ✅ EU Server verfügbar (GDPR)
 
 **Features:**
+
 ```typescript
 - Transactional Emails
 - Marketing Emails
@@ -160,17 +181,20 @@ $25/Monat (Base) + (1000 × $0.02) = $45/Monat
 ```
 
 **Pricing:**
+
 - **Starter**: $9/Monat - 10,000 Emails
 - **Growth**: $29/Monat - 50,000 Emails
 - **Business**: $79/Monat - 200,000 Emails
 - **Custom**: Ab $199/Monat
 
 **Für 1000 User** (≈5000 Emails/Monat):
+
 ```
 $9/Monat (Starter Plan)
 ```
 
 **Alternative Email-Lösungen:**
+
 - **Resend** ($20/Monat für 50k Emails) - Developer-freundlich
 - **Amazon SES** (Pay-as-you-go: $0.10 per 1000 Emails)
 - **Postmark** ($15/Monat für 10k Emails) - Premium Deliverability
@@ -178,19 +202,23 @@ $9/Monat (Starter Plan)
 ### 1.6 Datenbanken (Open Source)
 
 **Primary Database:**
+
 - **PostgreSQL 17** (neueste, PostgreSQL License)
 - **Railway Managed PostgreSQL** (automatische Backups)
 
 **ORM:**
+
 - **Drizzle ORM** (Apache 2.0) - modernste Type-Safe ORM
 - **Alternative**: Prisma 6.x (Apache 2.0)
 
 **Extensions:**
+
 - **TimescaleDB** (Apache 2.0) - Time-Series
 - **PostGIS** (GPL v2) - Geospatial
 - **pgvector** (PostgreSQL License) - AI/ML Features
 
 **Caching & Jobs:**
+
 - **Redis 7.4** (BSD-3-Clause)
 - **Railway Managed Redis**
 - **BullMQ 5.x** (MIT License) - Job Queue
@@ -200,6 +228,7 @@ $9/Monat (Starter Plan)
 **Options:**
 
 **Option 1: Cloudflare R2** (S3-compatible, empfohlen) ✅
+
 - 10 GB Storage kostenlos
 - $0.015/GB danach
 - Keine Egress-Gebühren!
@@ -208,16 +237,19 @@ $9/Monat (Starter Plan)
 - GDPR-compliant (EU Region)
 
 **Option 2: AWS S3**
+
 - Standard S3 Pricing
 - Mit CloudFront CDN
 - Lifecycle Policies
 
 **Option 3: MinIO** (self-hosted auf Railway)
+
 - AGPL v3 License
 - S3-kompatibel
 - Self-hosted Option
 
 **Empfehlung für Railway**: **Cloudflare R2**
+
 - Günstig
 - Keine Egress-Gebühren
 - Einfache Integration
@@ -226,16 +258,19 @@ $9/Monat (Starter Plan)
 ### 1.8 Monitoring & Logging (Open Source)
 
 **Application Performance:**
+
 - **Grafana** (AGPL v3) - Dashboards
 - **Prometheus** (Apache 2.0) - Metrics
 - **Loki** (AGPL v3) - Log Aggregation
 - **Tempo** (AGPL v3) - Tracing
 
 **Error Tracking:**
+
 - **Sentry** (self-hosted, BSL)
 - **GlitchTip** (MIT License) - Sentry-kompatibel
 
 **Uptime Monitoring:**
+
 - **Uptime Kuma** (MIT License) - self-hosted
 - **Better Uptime** (hat Free Tier)
 
@@ -244,6 +279,7 @@ $9/Monat (Starter Plan)
 ### 1.9 Analytics (Open Source)
 
 **Web Analytics:**
+
 - **Umami** (MIT License) - EMPFOHLUNG
   - Privacy-first
   - GDPR-compliant
@@ -252,6 +288,7 @@ $9/Monat (Starter Plan)
 - **Plausible** (AGPL v3) - Alternative
 
 **Product Analytics:**
+
 - **PostHog** (MIT License) - self-hosted
   - Session Recording
   - Feature Flags
@@ -261,6 +298,7 @@ $9/Monat (Starter Plan)
 ### 1.10 Search Engine (Open Source)
 
 **Full-Text Search:**
+
 - **Meilisearch** (MIT License) - EMPFOHLUNG
   - Ultra-schnell
   - Typo Tolerance
@@ -272,6 +310,7 @@ $9/Monat (Starter Plan)
 ### 1.11 Real-Time Communication (Open Source)
 
 **WebSocket:**
+
 - **Socket.io 4.x** (MIT License) - bewährt
 - **Soketi** (MIT License) - Pusher Alternative
 - **Centrifugo** (MIT License) - hochperformant
@@ -279,6 +318,7 @@ $9/Monat (Starter Plan)
 ### 1.12 Background Jobs (Open Source)
 
 **Job Queue:**
+
 - **BullMQ** (MIT License) - Redis-based, EMPFOHLUNG
   - Email Versand
   - Report Generation
@@ -286,12 +326,14 @@ $9/Monat (Starter Plan)
   - Scheduled Tasks
 
 **Cron/Scheduling:**
+
 - **node-cron** (ISC License)
 - Built-in NestJS Scheduler
 
 ### 1.13 SMS Service (Optional SaaS)
 
 **Options:**
+
 - **Twilio** - Standard, bewährt
 - **Vonage (Nexmo)** - günstiger
 - **MessageBird** - EU-fokussiert
@@ -302,10 +344,74 @@ $9/Monat (Starter Plan)
 ### 1.14 Push Notifications (Free)
 
 **Firebase Cloud Messaging (FCM)**
+
 - Komplett kostenlos
 - Unbegrenzte Nachrichten
 - iOS & Android
 - Web Push
+
+---
+
+## 1.15 System-Architektur Übersicht
+
+Das komplette System besteht aus 3 Haupt-Services, die auf Railway deployed werden:
+
+```mermaid
+graph TB
+    subgraph External["🌐 External Services"]
+        Clerk["🔐 Clerk<br/>Auth + Organizations<br/>+ Payments"]
+        Maileroo["📧 Maileroo<br/>Email Delivery"]
+        R2["💾 Cloudflare R2<br/>File Storage"]
+        FCM["📱 Firebase FCM<br/>Push Notifications"]
+    end
+
+    subgraph Railway["🚂 Railway.app - Production"]
+        subgraph Apps["Applications"]
+            Web["🌐 Web<br/>Next.js 15<br/>:3000"]
+            API["⚡ API<br/>NestJS 10<br/>:4000"]
+            Worker["⚙️ Worker<br/>BullMQ<br/>:4001"]
+        end
+
+        subgraph Data["Databases"]
+            Postgres[("🗄️ PostgreSQL 17")]
+            Redis[("⚡ Redis 7.4<br/>Cache + Jobs")]
+        end
+    end
+
+    User["👤 Users"] --> Web
+    Web --> API
+    API --> Postgres
+    API --> Redis
+    API --> Clerk
+    Worker --> Redis
+    Worker --> Postgres
+    Worker --> Maileroo
+    Worker --> FCM
+    Worker --> R2
+
+    style Clerk fill:#4F46E5
+    style Web fill:#0070F3
+    style API fill:#E0234E
+    style Worker fill:#FF6B35
+    style Postgres fill:#336791
+    style Redis fill:#DC382D
+```
+
+### Service-Verantwortlichkeiten
+
+| Service        | Rolle                 | Technologie           | Port |
+| -------------- | --------------------- | --------------------- | ---- |
+| **Web**        | Frontend & BFF        | Next.js 15 + React 19 | 3000 |
+| **API**        | REST API + WebSockets | NestJS 10 + Fastify   | 4000 |
+| **Worker**     | Background Jobs       | NestJS 10 + BullMQ    | 4001 |
+| **PostgreSQL** | Primary Database      | PostgreSQL 17         | 5432 |
+| **Redis**      | Cache + Job Queue     | Redis 7.4             | 6379 |
+
+**Monorepo-Struktur:**
+
+- Alle Services teilen Code via pnpm workspaces
+- Shared Packages: `@planday/types`, `@planday/config`, `@planday/database`
+- Docker-basiertes Deployment auf Railway
 
 ---
 
@@ -315,7 +421,18 @@ $9/Monat (Starter Plan)
 
 ```typescript
 // schema.ts - Drizzle ORM Schema
-import { pgTable, uuid, varchar, text, timestamp, boolean, decimal, integer, jsonb, date } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  boolean,
+  decimal,
+  integer,
+  jsonb,
+  date,
+} from 'drizzle-orm/pg-core';
 
 // Organizations (Multi-Tenancy)
 export const organizations = pgTable('organizations', {
@@ -327,8 +444,12 @@ export const organizations = pgTable('organizations', {
   timezone: varchar('timezone', { length: 50 }).default('Europe/Berlin'),
   countryCode: varchar('country_code', { length: 2 }).default('DE'),
   settings: jsonb('settings').default({}),
-  subscriptionTier: varchar('subscription_tier', { length: 50 }).default('starter'),
-  subscriptionStatus: varchar('subscription_status', { length: 50 }).default('active'), // active, past_due, cancelled
+  subscriptionTier: varchar('subscription_tier', { length: 50 }).default(
+    'starter',
+  ),
+  subscriptionStatus: varchar('subscription_status', { length: 50 }).default(
+    'active',
+  ), // active, past_due, cancelled
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -338,7 +459,9 @@ export const organizations = pgTable('organizations', {
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   clerkUserId: varchar('clerk_user_id', { length: 255 }).unique().notNull(), // Clerk User ID
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   email: varchar('email', { length: 255 }).notNull(),
   emailVerified: timestamp('email_verified'),
   firstName: varchar('first_name', { length: 100 }),
@@ -355,13 +478,18 @@ export const users = pgTable('users', {
 export const employees = pgTable('employees', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   employeeNumber: varchar('employee_number', { length: 50 }),
   locationId: uuid('location_id').references(() => locations.id),
   hireDate: date('hire_date'),
   terminationDate: date('termination_date'),
   contractType: varchar('contract_type', { length: 50 }), // hourly, salary, part_time, full_time
-  contractedHoursPerWeek: decimal('contracted_hours_per_week', { precision: 5, scale: 2 }),
+  contractedHoursPerWeek: decimal('contracted_hours_per_week', {
+    precision: 5,
+    scale: 2,
+  }),
   hourlyRate: decimal('hourly_rate', { precision: 10, scale: 2 }),
   salaryAnnual: decimal('salary_annual', { precision: 12, scale: 2 }),
   emergencyContact: jsonb('emergency_contact'),
@@ -375,7 +503,9 @@ export const employees = pgTable('employees', {
 // Locations/Departments
 export const locations = pgTable('locations', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   name: varchar('name', { length: 255 }).notNull(),
   address: text('address'),
   latitude: decimal('latitude', { precision: 10, scale: 8 }),
@@ -388,10 +518,18 @@ export const locations = pgTable('locations', {
 // Shifts (Kern-Feature)
 export const shifts = pgTable('shifts', {
   id: uuid('id').primaryKey().defaultRandom(),
-  scheduleId: uuid('schedule_id').references(() => schedules.id, { onDelete: 'cascade' }),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
-  locationId: uuid('location_id').references(() => locations.id, { onDelete: 'cascade' }),
-  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'set null' }), // NULL = open shift
+  scheduleId: uuid('schedule_id').references(() => schedules.id, {
+    onDelete: 'cascade',
+  }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
+  locationId: uuid('location_id').references(() => locations.id, {
+    onDelete: 'cascade',
+  }),
+  employeeId: uuid('employee_id').references(() => employees.id, {
+    onDelete: 'set null',
+  }), // NULL = open shift
   positionId: uuid('position_id').references(() => positions.id),
   shiftTypeId: uuid('shift_type_id').references(() => shiftTypes.id),
   startTime: timestamp('start_time').notNull(),
@@ -408,16 +546,25 @@ export const shifts = pgTable('shifts', {
 // Time Clock Entries
 export const timeEntries = pgTable('time_entries', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
-  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
-  shiftId: uuid('shift_id').references(() => shifts.id, { onDelete: 'set null' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
+  employeeId: uuid('employee_id').references(() => employees.id, {
+    onDelete: 'cascade',
+  }),
+  shiftId: uuid('shift_id').references(() => shifts.id, {
+    onDelete: 'set null',
+  }),
   locationId: uuid('location_id').references(() => locations.id),
   clockInTime: timestamp('clock_in_time').notNull(),
   clockOutTime: timestamp('clock_out_time'),
   clockInLatitude: decimal('clock_in_latitude', { precision: 10, scale: 8 }),
   clockInLongitude: decimal('clock_in_longitude', { precision: 11, scale: 8 }),
   clockOutLatitude: decimal('clock_out_latitude', { precision: 10, scale: 8 }),
-  clockOutLongitude: decimal('clock_out_longitude', { precision: 11, scale: 8 }),
+  clockOutLongitude: decimal('clock_out_longitude', {
+    precision: 11,
+    scale: 8,
+  }),
   clockInPhotoUrl: text('clock_in_photo_url'),
   clockOutPhotoUrl: text('clock_out_photo_url'),
   totalMinutes: integer('total_minutes'),
@@ -432,7 +579,9 @@ export const timeEntries = pgTable('time_entries', {
 // Subscriptions (via Clerk Payments)
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   clerkSubscriptionId: varchar('clerk_subscription_id', { length: 255 }), // Clerk Subscription ID
   stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }), // Stripe ID (via Clerk)
   tier: varchar('tier', { length: 50 }).notNull(), // starter, plus, pro, enterprise
@@ -450,8 +599,12 @@ export const subscriptions = pgTable('subscriptions', {
 // Schedules (Container for Shifts)
 export const schedules = pgTable('schedules', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
-  locationId: uuid('location_id').references(() => locations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
+  locationId: uuid('location_id').references(() => locations.id, {
+    onDelete: 'cascade',
+  }),
   name: varchar('name', { length: 255 }).notNull(),
   startDate: date('start_date').notNull(),
   endDate: date('end_date').notNull(),
@@ -467,7 +620,9 @@ export const schedules = pgTable('schedules', {
 // Positions (Job Roles)
 export const positions = pgTable('positions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   locationId: uuid('location_id').references(() => locations.id),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -482,7 +637,9 @@ export const positions = pgTable('positions', {
 // Shift Types (Morning, Evening, Night, etc.)
 export const shiftTypes = pgTable('shift_types', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   name: varchar('name', { length: 100 }).notNull(),
   shortCode: varchar('short_code', { length: 10 }), // M, E, N, etc.
   color: varchar('color', { length: 7 }).default('#3b82f6'),
@@ -496,7 +653,9 @@ export const shiftTypes = pgTable('shift_types', {
 // Availabilities (Employee availability preferences)
 export const availabilities = pgTable('availabilities', {
   id: uuid('id').primaryKey().defaultRandom(),
-  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  employeeId: uuid('employee_id').references(() => employees.id, {
+    onDelete: 'cascade',
+  }),
   dayOfWeek: integer('day_of_week').notNull(), // 0-6 (Sunday-Saturday)
   startTime: varchar('start_time', { length: 5 }), // HH:MM
   endTime: varchar('end_time', { length: 5 }), // HH:MM
@@ -512,8 +671,12 @@ export const availabilities = pgTable('availabilities', {
 // Leave Requests (Time-off, Vacation, Sick leave)
 export const leaveRequests = pgTable('leave_requests', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
-  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
+  employeeId: uuid('employee_id').references(() => employees.id, {
+    onDelete: 'cascade',
+  }),
   leaveType: varchar('leave_type', { length: 50 }).notNull(), // vacation, sick, personal, unpaid
   startDate: date('start_date').notNull(),
   endDate: date('end_date').notNull(),
@@ -531,10 +694,18 @@ export const leaveRequests = pgTable('leave_requests', {
 // Shift Swaps (Employee-to-Employee shift trading)
 export const shiftSwaps = pgTable('shift_swaps', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
-  originalShiftId: uuid('original_shift_id').references(() => shifts.id, { onDelete: 'cascade' }),
-  requestedBy: uuid('requested_by').references(() => employees.id, { onDelete: 'cascade' }),
-  requestedWith: uuid('requested_with').references(() => employees.id, { onDelete: 'set null' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
+  originalShiftId: uuid('original_shift_id').references(() => shifts.id, {
+    onDelete: 'cascade',
+  }),
+  requestedBy: uuid('requested_by').references(() => employees.id, {
+    onDelete: 'cascade',
+  }),
+  requestedWith: uuid('requested_with').references(() => employees.id, {
+    onDelete: 'set null',
+  }),
   offeredShiftId: uuid('offered_shift_id').references(() => shifts.id), // Optional: swap vs. give away
   status: varchar('status', { length: 50 }).default('pending'), // pending, accepted, rejected, approved, cancelled
   reason: text('reason'),
@@ -548,8 +719,12 @@ export const shiftSwaps = pgTable('shift_swaps', {
 // Open Shift Requests (Employees request available shifts)
 export const openShiftRequests = pgTable('open_shift_requests', {
   id: uuid('id').primaryKey().defaultRandom(),
-  shiftId: uuid('shift_id').references(() => shifts.id, { onDelete: 'cascade' }),
-  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  shiftId: uuid('shift_id').references(() => shifts.id, {
+    onDelete: 'cascade',
+  }),
+  employeeId: uuid('employee_id').references(() => employees.id, {
+    onDelete: 'cascade',
+  }),
   status: varchar('status', { length: 50 }).default('pending'), // pending, approved, rejected
   message: text('message'),
   approvedBy: uuid('approved_by').references(() => users.id),
@@ -560,7 +735,9 @@ export const openShiftRequests = pgTable('open_shift_requests', {
 // Notifications
 export const notifications = pgTable('notifications', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   type: varchar('type', { length: 50 }).notNull(), // shift_assigned, shift_swap, leave_approved, etc.
   title: varchar('title', { length: 255 }).notNull(),
@@ -575,10 +752,16 @@ export const notifications = pgTable('notifications', {
 // Messages (In-app messaging)
 export const messages = pgTable('messages', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   threadId: uuid('thread_id'), // For grouping related messages
-  senderId: uuid('sender_id').references(() => users.id, { onDelete: 'cascade' }),
-  recipientId: uuid('recipient_id').references(() => users.id, { onDelete: 'cascade' }),
+  senderId: uuid('sender_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
+  recipientId: uuid('recipient_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
   subject: varchar('subject', { length: 255 }),
   body: text('body').notNull(),
   isRead: boolean('is_read').default(false),
@@ -590,8 +773,12 @@ export const messages = pgTable('messages', {
 // Documents (File storage references)
 export const documents = pgTable('documents', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
-  employeeId: uuid('employee_id').references(() => employees.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
+  employeeId: uuid('employee_id').references(() => employees.id, {
+    onDelete: 'cascade',
+  }),
   uploadedBy: uuid('uploaded_by').references(() => users.id),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -609,7 +796,9 @@ export const documents = pgTable('documents', {
 // Reports (Generated reports)
 export const reports = pgTable('reports', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   generatedBy: uuid('generated_by').references(() => users.id),
   type: varchar('type', { length: 50 }).notNull(), // payroll, attendance, labor_cost, etc.
   name: varchar('name', { length: 255 }).notNull(),
@@ -638,7 +827,9 @@ export const pushTokens = pgTable('push_tokens', {
 // Announcements (Company-wide or location-specific announcements)
 export const announcements = pgTable('announcements', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.id, {
+    onDelete: 'cascade',
+  }),
   locationId: uuid('location_id').references(() => locations.id), // NULL = all locations
   title: varchar('title', { length: 255 }).notNull(),
   body: text('body').notNull(),
@@ -729,7 +920,7 @@ import { users, organizations } from '@/lib/schema';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
-  
+
   const headerPayload = headers();
   const svix_id = headerPayload.get('svix-id');
   const svix_timestamp = headerPayload.get('svix-timestamp');
@@ -737,7 +928,7 @@ export async function POST(req: Request) {
 
   const body = await req.text();
   const wh = new Webhook(WEBHOOK_SECRET);
-  
+
   let evt;
   try {
     evt = wh.verify(body, {
@@ -750,11 +941,11 @@ export async function POST(req: Request) {
   }
 
   const eventType = evt.type;
-  
+
   // User Created
   if (eventType === 'user.created') {
     const { id, email_addresses, first_name, last_name, image_url } = evt.data;
-    
+
     await db.insert(users).values({
       clerkUserId: id,
       email: email_addresses[0].email_address,
@@ -763,12 +954,13 @@ export async function POST(req: Request) {
       avatarUrl: image_url,
     });
   }
-  
+
   // User Updated
   if (eventType === 'user.updated') {
     const { id, email_addresses, first_name, last_name, image_url } = evt.data;
-    
-    await db.update(users)
+
+    await db
+      .update(users)
       .set({
         email: email_addresses[0].email_address,
         firstName: first_name,
@@ -778,11 +970,11 @@ export async function POST(req: Request) {
       })
       .where(eq(users.clerkUserId, id));
   }
-  
+
   // Organization Created
   if (eventType === 'organization.created') {
     const { id, name, slug, image_url } = evt.data;
-    
+
     await db.insert(organizations).values({
       clerkOrgId: id,
       name,
@@ -790,7 +982,7 @@ export async function POST(req: Request) {
       logoUrl: image_url,
     });
   }
-  
+
   return new Response('Webhook processed', { status: 200 });
 }
 ```
@@ -804,15 +996,15 @@ import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {
   const { userId, orgId } = await auth();
-  
+
   if (!userId) redirect('/sign-in');
   if (!orgId) redirect('/onboarding');
-  
+
   // Get organization data
   const org = await db.query.organizations.findFirst({
     where: eq(organizations.clerkOrgId, orgId),
   });
-  
+
   return (
     <div>
       <h1>Dashboard - {org.name}</h1>
@@ -855,11 +1047,11 @@ import fetch from 'node-fetch';
 export class MailerooService {
   private apiKey: string;
   private apiUrl = 'https://smtp.maileroo.com/api/v1/send';
-  
+
   constructor() {
     this.apiKey = process.env.MAILEROO_API_KEY!;
   }
-  
+
   async sendEmail({
     to,
     subject,
@@ -884,7 +1076,9 @@ export class MailerooService {
           email: from,
           name: 'Planday Clone',
         },
-        to: Array.isArray(to) ? to.map(email => ({ email })) : [{ email: to }],
+        to: Array.isArray(to)
+          ? to.map((email) => ({ email }))
+          : [{ email: to }],
         subject,
         html,
         text,
@@ -893,14 +1087,14 @@ export class MailerooService {
         },
       }),
     });
-    
+
     if (!response.ok) {
       throw new Error(`Maileroo API Error: ${response.statusText}`);
     }
-    
+
     return response.json();
   }
-  
+
   // Send Template Email
   async sendTemplate({
     to,
@@ -927,11 +1121,11 @@ export class MailerooService {
         variables,
       }),
     });
-    
+
     if (!response.ok) {
       throw new Error(`Maileroo Template Error: ${response.statusText}`);
     }
-    
+
     return response.json();
   }
 }
@@ -1045,17 +1239,17 @@ export const emailWorker = new Worker(
   'email-queue',
   async (job) => {
     const { type, data } = job.data;
-    
+
     if (type === 'shift-assigned') {
       const html = render(ShiftAssignedEmail(data));
-      
+
       await maileroo.sendEmail({
         to: data.employeeEmail,
         subject: `Neue Schicht zugewiesen: ${data.shiftDate}`,
         html,
       });
     }
-    
+
     return { success: true };
   },
   {
@@ -1063,7 +1257,7 @@ export const emailWorker = new Worker(
       host: process.env.REDIS_HOST,
       port: parseInt(process.env.REDIS_PORT || '6379'),
     },
-  }
+  },
 );
 ```
 
@@ -1084,6 +1278,7 @@ export const emailWorker = new Worker(
 ### 5.2 Environment Variables
 
 **Web Service:**
+
 ```env
 # Clerk
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_xxx
@@ -1099,6 +1294,7 @@ NEXT_PUBLIC_API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}
 ```
 
 **API Service:**
+
 ```env
 # Clerk (für API Verification)
 CLERK_PUBLISHABLE_KEY=pk_live_xxx
@@ -1128,6 +1324,7 @@ FCM_PRIVATE_KEY=<private-key>
 ```
 
 **Worker Service:**
+
 ```env
 # Database & Cache
 DATABASE_URL=${{Postgres.DATABASE_URL}}
@@ -1158,6 +1355,7 @@ FCM_PRIVATE_KEY=<private-key>
 #### Small Scale (1000 aktive User):
 
 **SaaS Services:**
+
 ```
 Clerk:               $45/Monat ($25 + 1000×$0.02)
 Maileroo:            $9/Monat (10k Emails)
@@ -1168,6 +1366,7 @@ Subtotal SaaS:       $55/Monat
 ```
 
 **Railway (Infrastructure):**
+
 ```
 PostgreSQL:          $5-10/Monat
 Redis:               $5/Monat
@@ -1179,6 +1378,7 @@ Subtotal Railway:    $30-55/Monat
 ```
 
 **Monitoring (Open Source auf Railway):**
+
 ```
 Grafana + Prometheus: $5/Monat
 Sentry (self-hosted): $5/Monat
@@ -1192,6 +1392,7 @@ Subtotal Monitoring:  $13/Monat
 #### Medium Scale (10K User):
 
 **SaaS Services:**
+
 ```
 Clerk:               $225/Monat ($25 + 10k×$0.02)
 Maileroo:            $29/Monat (50k Emails)
@@ -1202,6 +1403,7 @@ Subtotal SaaS:       $259/Monat
 ```
 
 **Railway:**
+
 ```
 PostgreSQL:          $20-30/Monat
 Redis:               $10-15/Monat
@@ -1213,6 +1415,7 @@ Subtotal Railway:    $90-155/Monat
 ```
 
 **Monitoring:**
+
 ```
 Grafana Stack:       $10/Monat
 Sentry:              $10/Monat
@@ -1226,10 +1429,12 @@ Subtotal:            $25/Monat
 ### Vergleich mit Full-SaaS:
 
 **Mit Clerk + SendGrid + DataDog + Mixpanel + AWS:**
+
 - 1K User: ~€500-700/Monat
 - 10K User: ~€2.000-3.000/Monat
 
 **Mit unserem Stack (Clerk + Maileroo + Open Source):**
+
 - 1K User: ~€98-123/Monat ✅ **80% günstiger!**
 - 10K User: ~€374-439/Monat ✅ **85% günstiger!**
 
@@ -1238,6 +1443,7 @@ Subtotal:            $25/Monat
 ## 7. Features - Komplett
 
 ### 7.1 Schichtplanung
+
 - ✅ Drag & Drop Schedule Builder
 - ✅ Schedule Templates
 - ✅ Multi-Location Support
@@ -1248,6 +1454,7 @@ Subtotal:            $25/Monat
 - ✅ Copy/Paste Schedules
 
 ### 7.2 Shift Management
+
 - ✅ Shift Swapping (mit Genehmigung)
 - ✅ Shift Handover
 - ✅ Shift Selling
@@ -1256,6 +1463,7 @@ Subtotal:            $25/Monat
 - ✅ Time-off Requests
 
 ### 7.3 Zeiterfassung
+
 - ✅ Mobile Punch Clock (GPS-basiert)
 - ✅ Check-in Fotos
 - ✅ Break Tracking
@@ -1264,6 +1472,7 @@ Subtotal:            $25/Monat
 - ✅ Attendance Reports
 
 ### 7.4 Mitarbeiterverwaltung
+
 - ✅ Employee Profiles (via Clerk)
 - ✅ Contract Management
 - ✅ Document Management (R2 Storage)
@@ -1272,6 +1481,7 @@ Subtotal:            $25/Monat
 - ✅ Bulk Import (CSV)
 
 ### 7.5 Kommunikation
+
 - ✅ In-App Messaging (Socket.io)
 - ✅ Email Notifications (Maileroo)
 - ✅ Push Notifications (FCM)
@@ -1280,6 +1490,7 @@ Subtotal:            $25/Monat
 - ✅ Shift Notes
 
 ### 7.6 Reporting & Analytics
+
 - ✅ Labor Cost Reports
 - ✅ Payroll Reports
 - ✅ Attendance Analytics
@@ -1288,12 +1499,14 @@ Subtotal:            $25/Monat
 - ✅ Custom Reports (PDF, Excel export)
 
 ### 7.7 Integrationen
+
 - ✅ Payroll (DATEV, Xero, QuickBooks via API)
 - ✅ API & Webhooks
 - ✅ SSO via Clerk
 - ✅ Export Funktionen
 
 ### 7.8 Admin & Multi-Tenancy
+
 - ✅ Multi-Tenancy via Clerk Organizations
 - ✅ Role-Based Access Control
 - ✅ User Management (Clerk Dashboard)
@@ -1306,6 +1519,7 @@ Subtotal:            $25/Monat
 ## 8. Entwicklungs-Roadmap
 
 ### Phase 1: MVP (3-4 Monate)
+
 - ✅ Clerk Auth & Organizations
 - ✅ Basic Scheduling
 - ✅ Time Tracking
@@ -1315,6 +1529,7 @@ Subtotal:            $25/Monat
 - ✅ Basic Reporting
 
 ### Phase 2: Core Features (2-3 Monate)
+
 - ✅ Shift Swapping
 - ✅ Availability Management
 - ✅ In-App Messaging
@@ -1323,6 +1538,7 @@ Subtotal:            $25/Monat
 - ✅ Clerk Billing Integration
 
 ### Phase 3: Advanced Features (2-3 Monate)
+
 - ✅ Schedule Templates
 - ✅ Compliance Engine
 - ✅ Advanced Analytics (Grafana)
@@ -1330,6 +1546,7 @@ Subtotal:            $25/Monat
 - ✅ Multi-Location
 
 ### Phase 4: Enterprise (2-3 Monate)
+
 - ✅ Payroll Integrations
 - ✅ API & Webhooks
 - ✅ SSO (via Clerk)
@@ -1343,6 +1560,7 @@ Subtotal:            $25/Monat
 ## 9. Pricing-Modell
 
 **Starter**: €2.99/User/Monat
+
 - Basic Scheduling
 - Time Tracking
 - 1 Location
@@ -1350,6 +1568,7 @@ Subtotal:            $25/Monat
 - 10 Users included
 
 **Plus**: €4.49/User/Monat
+
 - Alles aus Starter
 - Shift Swapping
 - Advanced Reporting
@@ -1359,6 +1578,7 @@ Subtotal:            $25/Monat
 - 25 Users included
 
 **Pro**: €6.99/User/Monat
+
 - Alles aus Plus
 - Unlimited Locations
 - API Access
@@ -1368,6 +1588,7 @@ Subtotal:            $25/Monat
 - 100 Users included
 
 **Enterprise**: Custom Pricing
+
 - Alles aus Pro
 - Custom Integrations
 - On-Premise Option
@@ -1444,12 +1665,14 @@ import { APP_GUARD } from '@nestjs/core';
 ```
 
 **Rate Limits pro Endpoint:**
+
 - Public Endpoints: 100 requests/minute
 - Authenticated Endpoints: 500 requests/minute
 - Admin Endpoints: 1000 requests/minute
 - Webhook Endpoints: 10 requests/minute
 
 **Redis-basiertes Rate Limiting:**
+
 ```typescript
 // Für distributed systems
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
@@ -1460,7 +1683,7 @@ ThrottlerModule.forRootAsync({
     ttl: 60000,
     limit: 100,
   }),
-})
+});
 ```
 
 ### 11.2 Security Headers
@@ -1472,27 +1695,27 @@ ThrottlerModule.forRootAsync({
 const securityHeaders = [
   {
     key: 'X-DNS-Prefetch-Control',
-    value: 'on'
+    value: 'on',
   },
   {
     key: 'Strict-Transport-Security',
-    value: 'max-age=63072000; includeSubDomains; preload'
+    value: 'max-age=63072000; includeSubDomains; preload',
   },
   {
     key: 'X-Frame-Options',
-    value: 'SAMEORIGIN'
+    value: 'SAMEORIGIN',
   },
   {
     key: 'X-Content-Type-Options',
-    value: 'nosniff'
+    value: 'nosniff',
   },
   {
     key: 'X-XSS-Protection',
-    value: '1; mode=block'
+    value: '1; mode=block',
   },
   {
     key: 'Referrer-Policy',
-    value: 'origin-when-cross-origin'
+    value: 'origin-when-cross-origin',
   },
   {
     key: 'Content-Security-Policy',
@@ -1504,12 +1727,14 @@ const securityHeaders = [
       font-src 'self' data:;
       connect-src 'self' https://*.clerk.com https://*.railway.app wss://*.railway.app;
       frame-src 'self' https://*.clerk.com;
-    `.replace(/\s{2,}/g, ' ').trim()
+    `
+      .replace(/\s{2,}/g, ' ')
+      .trim(),
   },
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=(self)'
-  }
+    value: 'camera=(), microphone=(), geolocation=(self)',
+  },
 ];
 
 module.exports = {
@@ -1530,21 +1755,23 @@ module.exports = {
 // apps/api/src/main.ts
 import helmet from 'helmet';
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  },
-}));
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 ```
 
 ### 11.3 Input Validation
@@ -1555,18 +1782,20 @@ app.use(helmet({
 // packages/types/src/schemas/shift.ts
 import { z } from 'zod';
 
-export const createShiftSchema = z.object({
-  startTime: z.date(),
-  endTime: z.date().refine((date) => date > new Date(), {
-    message: "End time must be in the future",
-  }),
-  employeeId: z.string().uuid(),
-  locationId: z.string().uuid(),
-  breakMinutes: z.number().int().min(0).max(480).default(0),
-}).refine((data) => data.endTime > data.startTime, {
-  message: "End time must be after start time",
-  path: ["endTime"],
-});
+export const createShiftSchema = z
+  .object({
+    startTime: z.date(),
+    endTime: z.date().refine((date) => date > new Date(), {
+      message: 'End time must be in the future',
+    }),
+    employeeId: z.string().uuid(),
+    locationId: z.string().uuid(),
+    breakMinutes: z.number().int().min(0).max(480).default(0),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: 'End time must be after start time',
+    path: ['endTime'],
+  });
 ```
 
 **Class-Validator (Backend):**
@@ -1600,6 +1829,7 @@ export class CreateShiftDto {
 ```
 
 **SQL Injection Prevention:**
+
 - ✅ Drizzle ORM nutzt Parameterized Queries
 - ✅ Keine Raw SQL mit User-Input
 - ✅ Input Sanitization für alle User-Inputs
@@ -1607,11 +1837,13 @@ export class CreateShiftDto {
 ### 11.4 GDPR Compliance
 
 **Datenminimierung:**
+
 - Nur notwendige Daten sammeln
 - Automatische Löschung nach Retention Period
 - Anonymisierung von Logs
 
 **Recht auf Auskunft (Art. 15 DSGVO):**
+
 ```typescript
 // apps/api/src/users/users.controller.ts
 @Get(':id/data-export')
@@ -1625,28 +1857,31 @@ async exportUserData(@Param('id') userId: string) {
 ```
 
 **Recht auf Löschung (Art. 17 DSGVO):**
+
 ```typescript
 @Delete(':id')
 async deleteUser(@Param('id') userId: string) {
   // Soft delete + anonymization
   await this.usersService.softDelete(userId);
-  
+
   // Delete from Clerk
   await clerkClient.users.deleteUser(userId);
-  
+
   // Anonymize related data
   await this.shiftsService.anonymizeUserShifts(userId);
-  
+
   return { success: true };
 }
 ```
 
 **Datenportabilität (Art. 20 DSGVO):**
+
 - JSON Export aller User-Daten
 - Maschinenlesbares Format
 - Automatischer Export bei Account-Löschung
 
 **Privacy by Design:**
+
 - Verschlüsselung im Transit (HTTPS/TLS)
 - Verschlüsselung at Rest (PostgreSQL Encryption)
 - Secure Session Management (Clerk)
@@ -1711,7 +1946,7 @@ export class AuditInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     const request = context.switchToHttp().getRequest();
     const { user, method, url } = request;
-    
+
     return next.handle().pipe(
       tap(async (data) => {
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
@@ -1723,13 +1958,14 @@ export class AuditInterceptor implements NestInterceptor {
             request,
           });
         }
-      })
+      }),
     );
   }
 }
 ```
 
 **Retention Policy:**
+
 - Audit Logs: 7 Jahre (Compliance)
 - Automatische Archivierung nach 1 Jahr
 - Export vor Löschung möglich
@@ -1757,11 +1993,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        '**/*.spec.ts',
-        '**/dist/**',
-      ],
+      exclude: ['node_modules/', '**/*.spec.ts', '**/dist/**'],
     },
   },
 });
@@ -1807,13 +2039,14 @@ describe('ShiftsService', () => {
         employeeId: '123',
         startTime: new Date('2025-01-01T10:00:00Z'),
         endTime: new Date('2025-01-01T18:00:00Z'),
-      })
+      }),
     ).rejects.toThrow('Shift conflict detected');
   });
 });
 ```
 
 **Coverage Goals:**
+
 - Services: 80%+
 - Controllers: 70%+
 - Utilities: 90%+
@@ -1942,15 +2175,15 @@ test.describe('Shift Creation Flow', () => {
 
   test('should create a new shift', async ({ page }) => {
     await page.goto('/shifts/new');
-    
+
     // Fill form
     await page.selectOption('[name="employeeId"]', 'employee-123');
     await page.fill('[name="startTime"]', '2025-01-01T08:00');
     await page.fill('[name="endTime"]', '2025-01-01T16:00');
-    
+
     // Submit
     await page.click('button[type="submit"]');
-    
+
     // Verify success
     await expect(page.locator('.success-message')).toBeVisible();
     await expect(page).toHaveURL(/\/shifts\/\w+/);
@@ -1959,7 +2192,7 @@ test.describe('Shift Creation Flow', () => {
   test('should show validation errors', async ({ page }) => {
     await page.goto('/shifts/new');
     await page.click('button[type="submit"]');
-    
+
     await expect(page.locator('.error-message')).toContainText('Required');
   });
 });
@@ -2030,12 +2263,15 @@ import pino from 'pino';
 export class PinoLogger implements LoggerService {
   private logger = pino({
     level: process.env.LOG_LEVEL || 'info',
-    transport: process.env.NODE_ENV === 'development' ? {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-      },
-    } : undefined,
+    transport:
+      process.env.NODE_ENV === 'development'
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+            },
+          }
+        : undefined,
   });
 
   log(message: string, context?: string) {
@@ -2060,20 +2296,26 @@ export class PinoLogger implements LoggerService {
 
 ```typescript
 // Structured logging with context
-this.logger.info({
-  userId: user.id,
-  organizationId: org.id,
-  action: 'shift.created',
-  shiftId: shift.id,
-}, 'Shift created successfully');
+this.logger.info(
+  {
+    userId: user.id,
+    organizationId: org.id,
+    action: 'shift.created',
+    shiftId: shift.id,
+  },
+  'Shift created successfully',
+);
 
 // Error logging with stack trace
-this.logger.error({
-  error: error.message,
-  stack: error.stack,
-  userId: user.id,
-  requestId: request.id,
-}, 'Failed to create shift');
+this.logger.error(
+  {
+    error: error.message,
+    stack: error.stack,
+    userId: user.id,
+    requestId: request.id,
+  },
+  'Failed to create shift',
+);
 ```
 
 ### 13.2 Sentry Integration
@@ -2092,9 +2334,7 @@ Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
   tracesSampleRate: 0.1, // 10% of transactions
-  integrations: [
-    new Sentry.Integrations.Http({ tracing: true }),
-  ],
+  integrations: [new Sentry.Integrations.Http({ tracing: true })],
 });
 ```
 
@@ -2186,7 +2426,7 @@ export class ErrorBoundary extends Component<Props, State> {
 export async function retryWithBackoff<T>(
   fn: () => Promise<T>,
   maxRetries = 3,
-  baseDelay = 1000
+  baseDelay = 1000,
 ): Promise<T> {
   let lastError: Error;
 
@@ -2195,13 +2435,13 @@ export async function retryWithBackoff<T>(
       return await fn();
     } catch (error) {
       lastError = error as Error;
-      
+
       if (attempt === maxRetries) {
         throw lastError;
       }
 
       const delay = baseDelay * Math.pow(2, attempt);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
@@ -2396,6 +2636,7 @@ npm run db:rollback
 ```
 
 **Wichtig:**
+
 - Immer Rollback-Script testen
 - Production-Rollbacks nur bei kritischen Fehlern
 - Backup vor Migration in Production
@@ -2411,10 +2652,13 @@ import { organizations, users, locations } from './schema';
 
 export async function seed() {
   // Create test organization
-  const [org] = await db.insert(organizations).values({
-    name: 'Test Company',
-    slug: 'test-company',
-  }).returning();
+  const [org] = await db
+    .insert(organizations)
+    .values({
+      name: 'Test Company',
+      slug: 'test-company',
+    })
+    .returning();
 
   // Create test locations
   await db.insert(locations).values([
@@ -2457,10 +2701,12 @@ Du hast jetzt:
 ✅ **Neueste Technologien** (Next.js 15, React 19, etc.)
 
 **Kosten:**
+
 - 1K User: ~€100/Monat
 - 10K User: ~€400/Monat
 
 **vs. Full-SaaS:**
+
 - 1K User: ~€600/Monat
 - 10K User: ~€2.500/Monat
 
