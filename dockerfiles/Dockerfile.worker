@@ -5,20 +5,11 @@ FROM node:22-alpine AS base
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-# Dependencies stage
-FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/worker/package.json ./apps/worker/
-COPY packages/database/package.json ./packages/database/
-COPY packages/types/package.json ./packages/types/
-COPY packages/config/package.json ./packages/config/
-RUN pnpm install --frozen-lockfile --prod
-
 # Builder stage
 FROM base AS builder
 COPY . .
 
-# Install all dependencies (including dev)
+# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
 # Build packages first
@@ -42,8 +33,8 @@ WORKDIR /app
 COPY --from=builder --chown=worker:nodejs /app/package.json ./
 COPY --from=builder --chown=worker:nodejs /app/pnpm-workspace.yaml ./
 
-# Copy production dependencies from deps stage
-COPY --from=deps --chown=worker:nodejs /app/node_modules ./node_modules
+# Copy ALL node_modules from builder (includes pnpm virtual store)
+COPY --from=builder --chown=worker:nodejs /app/node_modules ./node_modules
 
 # Copy package.json files for workspace structure
 COPY --from=builder --chown=worker:nodejs /app/apps/worker/package.json ./apps/worker/
