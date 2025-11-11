@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
+import { AppController } from './app.controller';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/logger/logger.interceptor';
 import { LoggerModule } from './common/logger/logger.module';
@@ -9,6 +10,7 @@ import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [LoggerModule, HealthModule],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_FILTER,
