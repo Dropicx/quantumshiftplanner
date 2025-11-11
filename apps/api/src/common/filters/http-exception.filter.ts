@@ -1,3 +1,5 @@
+import { IncomingHttpHeaders } from 'node:http';
+
 import {
   ExceptionFilter,
   Catch,
@@ -10,6 +12,11 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 
 import { AppLoggerService } from '../logger/logger.service';
 
+// Interface for request with correlation ID
+interface RequestWithCorrelation extends FastifyRequest {
+  correlationId?: string;
+}
+
 @Injectable()
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -19,12 +26,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
-    const request = ctx.getRequest<FastifyRequest>();
+    const request = ctx.getRequest<RequestWithCorrelation>();
 
     // Get correlation ID from request (works with both Express and Fastify)
     const correlationId =
-      (request as any).correlationId ||
-      (request.raw as any)?.correlationId ||
+      request.correlationId ||
+      (
+        request.raw as unknown as
+          | (Record<string, unknown> & { correlationId?: string })
+          | undefined
+      )?.correlationId ||
       'unknown';
 
     // Determine status code and message
@@ -99,12 +110,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     });
   }
 
-  private sanitizeBody(body: any): any {
+  private sanitizeBody(body: unknown): unknown {
     if (!body || typeof body !== 'object') {
       return body;
     }
 
-    const sanitized = { ...body };
+    const sanitized = { ...(body as Record<string, unknown>) };
     const sensitiveFields = [
       'password',
       'token',
@@ -124,7 +135,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return sanitized;
   }
 
-  private sanitizeHeaders(headers: any): any {
+  private sanitizeHeaders(headers: IncomingHttpHeaders): IncomingHttpHeaders {
     const sanitized = { ...headers };
     const sensitiveHeaders = [
       'authorization',

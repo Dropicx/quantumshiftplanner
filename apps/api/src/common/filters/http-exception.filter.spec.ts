@@ -1,16 +1,36 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AppLoggerService } from '../logger/logger.service';
 
 import { HttpExceptionFilter } from './http-exception.filter';
 
+// Mock types
+type MockLogger = Pick<
+  AppLoggerService,
+  'error' | 'warn' | 'log' | 'logWithMeta'
+>;
+
+type MockResponse = Pick<FastifyReply, 'status' | 'send'>;
+
+type MockRequest = {
+  method: string;
+  url: string;
+  query: Record<string, unknown>;
+  params: Record<string, unknown>;
+  body: Record<string, unknown>;
+  headers: Record<string, string | string[] | undefined>;
+  ip: string;
+  correlationId?: string;
+};
+
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
-  let mockLogger: AppLoggerService;
-  let mockResponse: any;
-  let mockRequest: any;
-  let mockHost: any;
+  let mockLogger: MockLogger;
+  let mockResponse: MockResponse;
+  let mockRequest: MockRequest;
+  let mockHost: ArgumentsHost;
 
   beforeEach(() => {
     mockLogger = {
@@ -18,7 +38,7 @@ describe('HttpExceptionFilter', () => {
       warn: vi.fn(),
       log: vi.fn(),
       logWithMeta: vi.fn(),
-    } as any;
+    };
 
     mockResponse = {
       status: vi.fn().mockReturnThis(),
@@ -41,9 +61,9 @@ describe('HttpExceptionFilter', () => {
         getResponse: () => mockResponse,
         getRequest: () => mockRequest,
       }),
-    };
+    } as unknown as ArgumentsHost;
 
-    filter = new HttpExceptionFilter(mockLogger);
+    filter = new HttpExceptionFilter(mockLogger as AppLoggerService);
   });
 
   it('should be defined', () => {
