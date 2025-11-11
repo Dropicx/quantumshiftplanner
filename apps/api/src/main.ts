@@ -3,13 +3,14 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv/config');
 }
 
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 
 import { validateEnv } from '@planday/config';
 
 import { AppModule } from './app.module';
+import { AppLoggerService } from './common/logger/logger.service';
 
 async function bootstrap() {
   // Validate environment variables
@@ -18,8 +19,11 @@ async function bootstrap() {
   // Create NestJS app with Fastify
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ logger: env.NODE_ENV === 'development' }),
+    new FastifyAdapter({ logger: false }), // Disable Fastify logger, use Winston instead
   );
+
+  // Get logger service from app context
+  const logger = app.get(AppLoggerService);
 
   // Enable CORS (simplified for now)
   app.enableCors({
@@ -33,8 +37,24 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: (errors) => {
+        logger.warn(
+          `Validation failed: ${JSON.stringify(errors)}`,
+          'ValidationPipe',
+        );
+        return new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: 'Validation failed',
+            errors: errors,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      },
     }),
   );
+
+  // Global exception filter and interceptor are registered via APP_FILTER and APP_INTERCEPTOR in AppModule
 
   // API prefix
   app.setGlobalPrefix('api');
@@ -55,16 +75,17 @@ async function bootstrap() {
   const port = parseInt(env.PORT, 10) || 4000;
   await app.listen(port, '0.0.0.0');
 
-  // eslint-disable-next-line no-console
-  console.log(`
-🚀 API Server is running!
+  logger.log(
+    `🚀 API Server is running!
 📍 URL: http://localhost:${port}
 📚 Docs: http://localhost:${port}/api/docs
-🏥 Health: http://localhost:${port}/api/health
-  `);
+🏥 Health: http://localhost:${port}/api/health`,
+    'Bootstrap',
+  );
 }
 
 bootstrap().catch((error) => {
+  // Use console.error as fallback if logger is not available
   console.error('Failed to start application:', error);
   process.exit(1);
 });

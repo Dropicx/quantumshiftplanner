@@ -1,17 +1,32 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HealthController } from './health.controller';
 
 describe('HealthController', () => {
   let controller: HealthController;
+  let mockHealthService: any;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [HealthController],
-    }).compile();
+  beforeEach(() => {
+    // Create mock service with spy
+    mockHealthService = {
+      checkOverallHealth: vi.fn().mockResolvedValue({
+        status: 'healthy',
+        timestamp: '2025-01-01T00:00:00.000Z',
+        database: {
+          status: 'up',
+          message: 'Connected',
+          responseTime: 10,
+        },
+        redis: {
+          status: 'up',
+          message: 'Connected',
+          responseTime: 5,
+        },
+      }),
+    };
 
-    controller = module.get<HealthController>(HealthController);
+    // Manually instantiate controller with mock service
+    controller = new HealthController(mockHealthService);
   });
 
   describe('check', () => {
@@ -46,33 +61,61 @@ describe('HealthController', () => {
   });
 
   describe('ready', () => {
-    it('should return readiness status', () => {
-      const result = controller.ready();
+    it('should return readiness status when healthy', async () => {
+      const result = await controller.ready();
 
       expect(result).toEqual({
-        status: 'ready',
-        database: 'connected',
-        redis: 'connected',
+        status: 'healthy',
+        timestamp: '2025-01-01T00:00:00.000Z',
+        database: {
+          status: 'up',
+          message: 'Connected',
+          responseTime: '10ms',
+        },
+        redis: {
+          status: 'up',
+          message: 'Connected',
+          responseTime: '5ms',
+        },
       });
     });
 
-    it('should indicate database connection', () => {
-      const result = controller.ready();
+    it('should indicate database status', async () => {
+      const result = await controller.ready();
 
-      expect(result.database).toBe('connected');
+      expect(result.database).toBeDefined();
+      expect(result.database.status).toBe('up');
     });
 
-    it('should indicate redis connection', () => {
-      const result = controller.ready();
+    it('should indicate redis status', async () => {
+      const result = await controller.ready();
 
-      expect(result.redis).toBe('connected');
+      expect(result.redis).toBeDefined();
+      expect(result.redis.status).toBe('up');
     });
 
-    it('should return consistent response', () => {
-      const result1 = controller.ready();
-      const result2 = controller.ready();
+    it('should throw HttpException when unhealthy', async () => {
+      mockHealthService.checkOverallHealth.mockResolvedValueOnce({
+        status: 'unhealthy',
+        timestamp: '2025-01-01T00:00:00.000Z',
+        database: {
+          status: 'unhealthy',
+          message: 'Connection failed',
+        },
+        redis: {
+          status: 'healthy',
+          message: 'Connected',
+        },
+      });
 
-      expect(result1).toEqual(result2);
+      await expect(controller.ready()).rejects.toThrow();
+    });
+
+    it('should include response times', async () => {
+      const result = await controller.ready();
+
+      expect(result.database.responseTime).toMatch(/^\d+ms$/);
+      expect(result.redis.responseTime).toMatch(/^\d+ms$/);
     });
   });
 
@@ -104,18 +147,21 @@ describe('HealthController', () => {
     it('should return valid memory values', () => {
       const result = controller.live();
 
-      expect(result.memory.rss).toBeGreaterThan(0);
-      expect(result.memory.heapTotal).toBeGreaterThan(0);
-      expect(result.memory.heapUsed).toBeGreaterThan(0);
-      expect(result.memory.external).toBeGreaterThanOrEqual(0);
+      // Memory values are now strings with "MB" suffix
+      expect(result.memory.rss).toMatch(/^\d+MB$/);
+      expect(result.memory.heapTotal).toMatch(/^\d+MB$/);
+      expect(result.memory.heapUsed).toMatch(/^\d+MB$/);
+      expect(result.memory.external).toMatch(/^\d+MB$/);
     });
 
     it('should have heapUsed less than or equal to heapTotal', () => {
       const result = controller.live();
 
-      expect(result.memory.heapUsed).toBeLessThanOrEqual(
-        result.memory.heapTotal,
-      );
+      // Parse numeric values from strings
+      const heapUsed = parseInt(result.memory.heapUsed.replace('MB', ''));
+      const heapTotal = parseInt(result.memory.heapTotal.replace('MB', ''));
+
+      expect(heapUsed).toBeLessThanOrEqual(heapTotal);
     });
 
     it('should return increasing uptime on subsequent calls', async () => {

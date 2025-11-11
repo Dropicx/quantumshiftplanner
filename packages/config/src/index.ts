@@ -10,6 +10,9 @@ export const envSchema = z.object({
   REDIS_URL: z.string().optional(),
   CLERK_SECRET_KEY: z.string(),
   CLERK_PUBLISHABLE_KEY: z.string(),
+  LOG_LEVEL: z
+    .enum(['error', 'warn', 'info', 'debug', 'verbose'])
+    .default('info'),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -30,6 +33,9 @@ export const config = {
   },
   jwt: {
     expiresIn: '7d',
+  },
+  logging: {
+    defaultLevel: 'info',
   },
 } as const;
 

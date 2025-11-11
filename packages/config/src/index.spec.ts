@@ -50,7 +50,10 @@ describe('Config Package', () => {
       };
 
       const result = envSchema.parse(validEnv);
-      expect(result).toEqual(validEnv);
+      expect(result).toEqual({
+        ...validEnv,
+        LOG_LEVEL: 'info', // Default value added by schema
+      });
     });
 
     it('should apply default NODE_ENV value', () => {
