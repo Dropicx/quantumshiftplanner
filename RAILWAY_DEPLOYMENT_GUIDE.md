@@ -901,13 +901,14 @@ Total: ~$90-155/Monat
 ```typescript
 // apps/api/src/health/health.controller.ts
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheck, HealthCheckService, TypeOrmHealthIndicator, MemoryHealthIndicator } from '@nestjs/terminus';
+import { HealthCheck, HealthCheckService, MemoryHealthIndicator } from '@nestjs/terminus';
+import { DatabaseHealthIndicator } from './database.health';
 
 @Controller('health')
 export class HealthController {
   constructor(
     private health: HealthCheckService,
-    private db: TypeOrmHealthIndicator,
+    private db: DatabaseHealthIndicator,
     private memory: MemoryHealthIndicator,
   ) {}
 
@@ -932,6 +933,28 @@ export class HealthController {
     return this.health.check([
       () => this.db.pingCheck('database'),
     ]);
+  }
+}
+```
+
+**Drizzle Database Health Indicator:**
+
+```typescript
+// apps/api/src/health/database.health.ts
+import { Injectable } from '@nestjs/common';
+import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';
+import { db } from '@planday/database';
+
+@Injectable()
+export class DatabaseHealthIndicator extends HealthIndicator {
+  async pingCheck(key: string): Promise<HealthIndicatorResult> {
+    try {
+      // Simple query to check database connection
+      await db.execute('SELECT 1');
+      return this.getStatus(key, true);
+    } catch (error) {
+      throw new HealthCheckError('Database check failed', this.getStatus(key, false));
+    }
   }
 }
 ```

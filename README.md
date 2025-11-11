@@ -182,34 +182,39 @@ git push origin main
 - Error Handling & Logging
 - Database Migrations
 
-### Getting Started:
-1. [Quick Start Guide](./QUICK_START.md) - Lokale Entwicklung Setup
-2. [Contributing Guide](./CONTRIBUTING.md) - Developer Onboarding
+### 📚 Available Documentation:
 
-### Architecture & Implementation:
-3. [Tech Stack Vergleich](./COMPARISON.md) - Warum diese Wahl?
-4. [Authentication Flow](./AUTH_FLOW.md) - Clerk Integration Details
-5. [API Reference](./API_REFERENCE.md) - Complete REST API
-6. [Mobile Architecture](./MOBILE_ARCHITECTURE.md) - React Native App
-7. [Real-time Communication](./REALTIME.md) - Socket.io Implementation
-8. [File Upload](./FILE_UPLOAD.md) - Cloudflare R2 Integration
+#### Getting Started:
+1. [Quick Start Guide](./QUICK_START.md) ⭐ - Lokale Entwicklung Setup
+2. [Contributing Guide](./CONTRIBUTING.md) ⭐ - Developer Onboarding
+3. [Troubleshooting](./TROUBLESHOOTING.md) ⭐ - Common Issues
 
-### Operations & Deployment:
-9. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md) - Detailliertes Deployment
-10. [Performance Optimization](./PERFORMANCE.md) - Optimization & Benchmarks
-11. [Monitoring](./MONITORING.md) - Grafana & Observability
-12. [Backup & Recovery](./BACKUP_RECOVERY.md) - Disaster Recovery Plan
-13. [Scaling](./SCALING.md) - Horizontal & Vertical Scaling
+#### Architecture & Implementation:
+4. [Tech Stack Vergleich](./COMPARISON.md) ⭐ - Warum diese Wahl?
+5. [Authentication Flow](./AUTH_FLOW.md) ⭐ - Clerk Integration Details
+6. [API Reference](./API_REFERENCE.md) ⭐ - Complete REST API
+7. [Mobile Architecture](./MOBILE_ARCHITECTURE.md) ⭐ - React Native App
 
-### Security & Compliance:
-14. [Security Policy](./SECURITY.md) - Vulnerability Reporting
-15. [Compliance](./COMPLIANCE.md) - GDPR & Legal
-16. [Accessibility](./ACCESSIBILITY.md) - WCAG 2.1 Guidelines
+#### Operations & Deployment:
+8. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md) ⭐ - Detailliertes Deployment
 
-### Advanced Topics:
-17. [Migration Guide](./MIGRATION_GUIDE.md) - Import from Competitors
-18. [Internationalization](./INTERNATIONALIZATION.md) - i18n Strategy
-19. [Troubleshooting](./TROUBLESHOOTING.md) - Common Issues
+#### Security & Compliance:
+9. [Security Policy](./SECURITY.md) ⭐ - Vulnerability Reporting
+
+---
+
+### 📝 Planned Documentation (Coming Soon):
+
+- **Real-time Communication** - Socket.io Implementation
+- **File Upload** - Cloudflare R2 Integration
+- **Performance Optimization** - Optimization & Benchmarks
+- **Monitoring** - Grafana & Observability
+- **Backup & Recovery** - Disaster Recovery Plan
+- **Scaling** - Horizontal & Vertical Scaling
+- **Compliance** - GDPR & Legal
+- **Accessibility** - WCAG 2.1 Guidelines
+- **Migration Guide** - Import from Competitors
+- **Internationalization** - i18n Strategy
 
 ---
 
@@ -282,7 +287,20 @@ git push origin main
 
 ---
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+---
+
+## ⚠️ Important Notes
+
+> **Placeholder Values:** Throughout the documentation, you'll find placeholder values like `yourdomain.com`, `security@yourdomain.com`, etc. These should be replaced with your actual domain and contact information before deploying to production.
+
+---
+
 **Let's build this! 🚀**
 
 Stand: November 2025
 Tech Stack: Next.js 15, React 19, NestJS 10, PostgreSQL 17
+License: MIT

@@ -1023,7 +1023,7 @@ POST /v1/webhooks
 
 ### Postman Collection
 
-Download our Postman collection: [planday-api.postman_collection.json](./postman/planday-api.postman_collection.json)
+> **Note:** Postman collection coming soon! For now, use the cURL examples below or create your own collection using the API reference.
 
 ### cURL Examples
 
