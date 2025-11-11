@@ -102,8 +102,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       );
     }
 
-    // Send response
-    response.status(status).send({
+    // Send response (Fastify uses .code() instead of .status())
+    response.code(status).send({
       ...errorResponse,
       correlationId,
       timestamp: new Date().toISOString(),
