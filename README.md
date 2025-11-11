@@ -191,15 +191,16 @@ git push origin main
 
 #### Architecture & Implementation:
 4. [Tech Stack Vergleich](./COMPARISON.md) ⭐ - Warum diese Wahl?
-5. [Authentication Flow](./AUTH_FLOW.md) ⭐ - Clerk Integration Details
-6. [API Reference](./API_REFERENCE.md) ⭐ - Complete REST API
-7. [Mobile Architecture](./MOBILE_ARCHITECTURE.md) ⭐ - React Native App
+5. [Microservices Architecture](./MICROSERVICES_ARCHITECTURE.md) ⭐ - Service Design & Communication
+6. [Authentication Flow](./AUTH_FLOW.md) ⭐ - Clerk Integration Details
+7. [API Reference](./API_REFERENCE.md) ⭐ - Complete REST API
+8. [Mobile Architecture](./MOBILE_ARCHITECTURE.md) ⭐ - React Native App
 
 #### Operations & Deployment:
-8. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md) ⭐ - Detailliertes Deployment
+9. [Railway Deployment Guide](./RAILWAY_DEPLOYMENT_GUIDE.md) ⭐ - Detailliertes Deployment
 
 #### Security & Compliance:
-9. [Security Policy](./SECURITY.md) ⭐ - Vulnerability Reporting
+10. [Security Policy](./SECURITY.md) ⭐ - Vulnerability Reporting
 
 ---
 
