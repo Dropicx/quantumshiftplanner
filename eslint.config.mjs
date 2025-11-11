@@ -5,6 +5,20 @@ import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-config-prettier';
 
 export default [
+  {
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      '.next/**',
+      'out/**',
+      'coverage/**',
+      '.turbo/**',
+      '*.config.js',
+      '*.config.mjs',
+      '**/*.tsbuildinfo',
+    ],
+  },
   eslint.configs.recommended,
   {
     files: ['**/*.ts', '**/*.tsx'],
@@ -56,17 +70,4 @@ export default [
     },
   },
   prettier,
-  {
-    ignores: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      '.next/**',
-      'out/**',
-      'coverage/**',
-      '.turbo/**',
-      '*.config.js',
-      '*.config.mjs',
-    ],
-  },
 ];

@@ -1,6 +1,7 @@
-import type { Config } from 'drizzle-kit';
-import { config } from 'dotenv';
 import { resolve } from 'path';
+
+import { config } from 'dotenv';
+import type { Config } from 'drizzle-kit';
 
 // Load environment variables from root .env file
 config({ path: resolve(__dirname, '../../.env') });

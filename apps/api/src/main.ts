@@ -3,15 +3,15 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv/config');
 }
 
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { ValidationPipe } from '@nestjs/common';
 
-import { AppModule } from './app.module';
 import { validateEnv } from '@planday/config';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   // Validate environment variables
@@ -57,6 +57,7 @@ async function bootstrap() {
   const port = parseInt(env.PORT, 10) || 4000;
   await app.listen(port, '0.0.0.0');
 
+  // eslint-disable-next-line no-console
   console.log(`
 🚀 API Server is running!
 📍 URL: http://localhost:${port}
@@ -65,4 +66,7 @@ async function bootstrap() {
   `);
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Failed to start application:', error);
+  process.exit(1);
+});
