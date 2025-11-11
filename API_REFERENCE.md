@@ -10,6 +10,8 @@ Complete REST API documentation for Planday Clone.
 ## 📋 Table of Contents
 
 - [Authentication](#authentication)
+- [Health Checks](#health-checks)
+- [Logging & Correlation IDs](#logging--correlation-ids)
 - [Organizations](#organizations)
 - [Users & Employees](#users--employees)
 - [Locations](#locations)
@@ -51,10 +53,159 @@ const token = await getToken();
 // Make API request
 const response = await fetch('https://api.yourdomain.com/v1/shifts', {
   headers: {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   },
 });
+```
+
+---
+
+## 🏥 Health Checks
+
+Health check endpoints for monitoring and orchestration (Kubernetes, Railway, etc.). These endpoints **do not require authentication**.
+
+### Basic Health Check
+
+```http
+GET /health
+```
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-11-11T14:00:00.000Z",
+  "app": "Planday API",
+  "version": "1.0.0"
+}
+```
+
+### Readiness Probe
+
+Check if API is ready to serve traffic (database and Redis connections healthy).
+
+```http
+GET /health/ready
+```
+
+**Response (Healthy):**
+
+```json
+{
+  "status": "ok",
+  "info": {
+    "database": { "status": "up" },
+    "redis": { "status": "up" }
+  },
+  "error": {},
+  "details": {
+    "database": { "status": "up" },
+    "redis": { "status": "up" }
+  }
+}
+```
+
+**Response (Unhealthy):**
+
+```json
+{
+  "status": "error",
+  "info": {
+    "database": { "status": "up" }
+  },
+  "error": {
+    "redis": { "status": "down", "message": "Connection refused" }
+  },
+  "details": {
+    "database": { "status": "up" },
+    "redis": { "status": "down", "message": "Connection refused" }
+  }
+}
+```
+
+### Liveness Probe
+
+Check if API process is alive and responding.
+
+```http
+GET /health/live
+```
+
+**Response:**
+
+```json
+{
+  "status": "ok"
+}
+```
+
+**Use Cases:**
+
+- **Kubernetes/Railway**: Readiness and liveness probes
+- **Load Balancers**: Health check configuration
+- **Monitoring**: Uptime monitoring and alerting
+
+---
+
+## 📊 Logging & Correlation IDs
+
+The API implements **correlation ID tracking** for request tracing and debugging.
+
+### Correlation ID Header
+
+Every request can include (or will automatically receive) a correlation ID:
+
+```http
+GET /v1/shifts
+Authorization: Bearer <token>
+X-Correlation-ID: abc-123-def-456
+```
+
+**Behavior:**
+
+- If `X-Correlation-ID` header is provided, it will be used
+- If not provided, a UUID will be automatically generated
+- The correlation ID is included in all logs for that request
+- Returned in response headers for client-side tracking
+
+**Example Request:**
+
+```typescript
+const response = await fetch('https://api.yourdomain.com/v1/shifts', {
+  headers: {
+    Authorization: `Bearer ${token}`,
+    'X-Correlation-ID': crypto.randomUUID(),
+  },
+});
+
+// Response includes same correlation ID
+console.log(response.headers.get('X-Correlation-ID'));
+```
+
+**Log Output:**
+
+```json
+{
+  "level": "info",
+  "timestamp": "2025-11-11T14:00:00.000Z",
+  "correlationId": "abc-123-def-456",
+  "context": "HTTP",
+  "message": "Incoming request",
+  "method": "GET",
+  "url": "/v1/shifts"
+}
+```
+
+**Debugging with Correlation IDs:**
+
+```bash
+# Search logs for specific request
+grep "abc-123-def-456" logs/combined-2025-11-11.log
+
+# Or in production (Railway/Docker)
+docker logs api-service | grep "abc-123-def-456"
 ```
 
 ---
@@ -68,6 +219,7 @@ GET /v1/organizations/me
 ```
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -93,6 +245,7 @@ PATCH /v1/organizations/me
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "New Name",
@@ -116,6 +269,7 @@ GET /v1/employees?page=1&limit=20&search=john&locationId=uuid&isActive=true
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 20, max: 100)
 - `search` (optional): Search by name or email
@@ -123,6 +277,7 @@ GET /v1/employees?page=1&limit=20&search=john&locationId=uuid&isActive=true
 - `isActive` (optional): Filter by active status
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -141,7 +296,7 @@ GET /v1/employees?page=1&limit=20&search=john&locationId=uuid&isActive=true
       "hireDate": "2025-01-01",
       "contractType": "full_time",
       "contractedHoursPerWeek": 40,
-      "hourlyRate": 25.00,
+      "hourlyRate": 25.0,
       "isActive": true,
       "skills": ["barista", "cashier"],
       "createdAt": "2025-11-01T00:00:00Z"
@@ -171,6 +326,7 @@ POST /v1/employees
 ```
 
 **Request Body:**
+
 ```json
 {
   "userId": "uuid",
@@ -179,7 +335,7 @@ POST /v1/employees
   "hireDate": "2025-12-01",
   "contractType": "part_time",
   "contractedHoursPerWeek": 20,
-  "hourlyRate": 20.00,
+  "hourlyRate": 20.0,
   "skills": ["server"]
 }
 ```
@@ -215,6 +371,7 @@ GET /v1/locations
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -223,7 +380,7 @@ GET /v1/locations
       "name": "Downtown Store",
       "address": "123 Main St, City",
       "latitude": 40.7128,
-      "longitude": -74.0060,
+      "longitude": -74.006,
       "timezone": "America/New_York",
       "settings": {
         "openingHours": {
@@ -243,6 +400,7 @@ POST /v1/locations
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Uptown Store",
@@ -264,6 +422,7 @@ GET /v1/shifts?startDate=2025-12-01&endDate=2025-12-31&employeeId=uuid&locationI
 ```
 
 **Query Parameters:**
+
 - `startDate` (required): Start date (ISO 8601)
 - `endDate` (required): End date (ISO 8601)
 - `employeeId` (optional): Filter by employee
@@ -271,6 +430,7 @@ GET /v1/shifts?startDate=2025-12-01&endDate=2025-12-31&employeeId=uuid&locationI
 - `status` (optional): scheduled, approved, draft, open, for_sale
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -324,6 +484,7 @@ POST /v1/shifts
 ```
 
 **Request Body:**
+
 ```json
 {
   "scheduleId": "uuid",
@@ -341,6 +502,7 @@ POST /v1/shifts
 **Response:** Created shift (201)
 
 **Errors:**
+
 - `400` - Validation error (e.g., end time before start time)
 - `409` - Shift conflict (employee already scheduled)
 
@@ -363,6 +525,7 @@ POST /v1/shifts/bulk
 ```
 
 **Request Body:**
+
 ```json
 {
   "shifts": [
@@ -371,13 +534,14 @@ POST /v1/shifts/bulk
       "employeeId": "uuid",
       "startTime": "2025-12-01T09:00:00Z",
       "endTime": "2025-12-01T17:00:00Z"
-    },
+    }
     // ... more shifts
   ]
 }
 ```
 
 **Response:**
+
 ```json
 {
   "created": 10,
@@ -398,6 +562,7 @@ POST /v1/shifts/publish
 ```
 
 **Request Body:**
+
 ```json
 {
   "shiftIds": ["uuid1", "uuid2"],
@@ -416,6 +581,7 @@ GET /v1/schedules?locationId=uuid&status=published
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -442,6 +608,7 @@ POST /v1/schedules
 ```
 
 **Request Body:**
+
 ```json
 {
   "locationId": "uuid",
@@ -458,6 +625,7 @@ POST /v1/schedules/:id/copy
 ```
 
 **Request Body:**
+
 ```json
 {
   "startDate": "2025-12-15",
@@ -477,17 +645,19 @@ POST /v1/time-entries/clock-in
 ```
 
 **Request Body:**
+
 ```json
 {
   "shiftId": "uuid",
   "locationId": "uuid",
   "latitude": 40.7128,
-  "longitude": -74.0060,
+  "longitude": -74.006,
   "photoUrl": "https://..."
 }
 ```
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -495,7 +665,7 @@ POST /v1/time-entries/clock-in
   "shiftId": "uuid",
   "clockInTime": "2025-12-01T09:02:00Z",
   "clockInLatitude": 40.7128,
-  "clockInLongitude": -74.0060
+  "clockInLongitude": -74.006
 }
 ```
 
@@ -506,11 +676,12 @@ POST /v1/time-entries/clock-out
 ```
 
 **Request Body:**
+
 ```json
 {
   "timeEntryId": "uuid",
   "latitude": 40.7128,
-  "longitude": -74.0060,
+  "longitude": -74.006,
   "photoUrl": "https://...",
   "breakMinutes": 30
 }
@@ -541,6 +712,7 @@ GET /v1/leave-requests?employeeId=uuid&status=pending&startDate=2025-12-01
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -572,6 +744,7 @@ POST /v1/leave-requests
 ```
 
 **Request Body:**
+
 ```json
 {
   "leaveType": "vacation",
@@ -588,6 +761,7 @@ POST /v1/leave-requests/:id/review
 ```
 
 **Request Body:**
+
 ```json
 {
   "status": "approved",
@@ -614,6 +788,7 @@ POST /v1/shift-swaps
 ```
 
 **Request Body:**
+
 ```json
 {
   "originalShiftId": "uuid",
@@ -648,6 +823,7 @@ GET /v1/notifications?isRead=false&limit=50
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -690,6 +866,7 @@ GET /v1/messages/conversations
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -725,6 +902,7 @@ POST /v1/messages
 ```
 
 **Request Body:**
+
 ```json
 {
   "recipientId": "uuid",
@@ -761,6 +939,7 @@ description: Full-time employment contract
 ```
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -799,6 +978,7 @@ POST /v1/reports/generate
 ```
 
 **Request Body:**
+
 ```json
 {
   "type": "payroll",
@@ -812,6 +992,7 @@ POST /v1/reports/generate
 ```
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -828,6 +1009,7 @@ GET /v1/reports/:id
 ```
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -918,9 +1100,9 @@ async function apiRequest(url: string) {
 
   if (response.status === 429) {
     const resetTime = response.headers.get('X-RateLimit-Reset');
-    const waitTime = (parseInt(resetTime) * 1000) - Date.now();
+    const waitTime = parseInt(resetTime) * 1000 - Date.now();
 
-    await new Promise(resolve => setTimeout(resolve, waitTime));
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
     return apiRequest(url); // Retry
   }
 
@@ -935,10 +1117,12 @@ async function apiRequest(url: string) {
 All list endpoints support pagination:
 
 **Query Parameters:**
+
 - `page` - Page number (default: 1)
 - `limit` - Items per page (default: 20, max: 100)
 
 **Response Format:**
+
 ```json
 {
   "data": [...],
@@ -958,6 +1142,7 @@ All list endpoints support pagination:
 ### Filtering
 
 Use query parameters:
+
 ```http
 GET /v1/employees?locationId=uuid&isActive=true&search=john
 ```
@@ -969,6 +1154,7 @@ GET /v1/shifts?sort=startTime&order=asc
 ```
 
 Options:
+
 - `order`: `asc` or `desc`
 - `sort`: Field name
 
@@ -983,6 +1169,7 @@ POST /v1/webhooks
 ```
 
 **Request Body:**
+
 ```json
 {
   "url": "https://your-server.com/webhooks/planday",

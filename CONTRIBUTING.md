@@ -26,6 +26,7 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 ### Standards
 
 **Positive behaviors:**
+
 - Using welcoming and inclusive language
 - Being respectful of differing viewpoints
 - Gracefully accepting constructive criticism
@@ -33,6 +34,7 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 - Showing empathy towards other community members
 
 **Unacceptable behaviors:**
+
 - Trolling, insulting/derogatory comments, and personal attacks
 - Public or private harassment
 - Publishing others' private information without permission
@@ -47,6 +49,7 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 Before you begin, ensure you have completed the [Quick Start Guide](./QUICK_START.md) to set up your local development environment.
 
 **Required:**
+
 - Node.js 22.x LTS
 - pnpm 9.x
 - PostgreSQL 17
@@ -110,6 +113,7 @@ git checkout -b fix/issue-number-description
 - `chore/` - Maintenance tasks
 
 **Examples:**
+
 ```
 feature/shift-swap-approval
 fix/1234-timezone-bug
@@ -124,6 +128,7 @@ chore/upgrade-dependencies
 **Follow these principles:**
 
 ✅ **DO:**
+
 - Write clean, readable code
 - Add comments for complex logic
 - Update documentation if needed
@@ -131,6 +136,7 @@ chore/upgrade-dependencies
 - Keep commits atomic and focused
 
 ❌ **DON'T:**
+
 - Mix multiple unrelated changes
 - Commit directly to `main`
 - Include unnecessary files
@@ -196,6 +202,7 @@ git push origin feature/your-feature-name
 ### TypeScript
 
 **Use strict TypeScript:**
+
 ```typescript
 // ✅ Good
 interface User {
@@ -215,6 +222,7 @@ function getUser(id: any): any {
 ```
 
 **Prefer interfaces over types for objects:**
+
 ```typescript
 // ✅ Good
 interface UserProps {
@@ -255,6 +263,7 @@ class Service {
 ### React/Next.js
 
 **Use functional components with hooks:**
+
 ```typescript
 // ✅ Good
 export function UserProfile({ userId }: { userId: string }) {
@@ -274,6 +283,7 @@ export class UserProfile extends React.Component {
 ```
 
 **Prefer server components when possible:**
+
 ```typescript
 // ✅ Good (Server Component)
 export default async function Page() {
@@ -292,6 +302,7 @@ export function InteractiveComponent() {
 ### NestJS
 
 **Use decorators and dependency injection:**
+
 ```typescript
 // ✅ Good
 @Injectable()
@@ -329,9 +340,122 @@ We use **Prettier** for formatting. Configuration in `.prettierrc`:
 ```
 
 **Run formatter:**
+
 ```bash
 pnpm format
 ```
+
+---
+
+## 📊 Logging Best Practices
+
+The API service uses **AppLoggerService** (Winston-based) for structured logging. All services and controllers should use this logger for consistent, traceable logging.
+
+### Using the Logger
+
+**Inject AppLoggerService:**
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { AppLoggerService } from '@/common/logger/logger.service';
+
+@Injectable()
+export class ShiftService {
+  constructor(private readonly logger: AppLoggerService) {
+    this.logger.setContext('ShiftService'); // Set context once in constructor
+  }
+
+  async createShift(data: CreateShiftDto) {
+    // Log operation start with context
+    this.logger.log('Creating new shift', {
+      organizationId: data.organizationId,
+      employeeId: data.employeeId,
+      date: data.date,
+    });
+
+    try {
+      const shift = await this.repository.create(data);
+
+      // Log success with result
+      this.logger.log('Shift created successfully', {
+        shiftId: shift.id,
+      });
+
+      return shift;
+    } catch (error) {
+      // Log error with stack trace and context
+      this.logger.error('Failed to create shift', error.stack, {
+        data,
+        errorMessage: error.message,
+      });
+      throw error;
+    }
+  }
+}
+```
+
+### Log Levels
+
+Use appropriate log levels:
+
+- **`debug`**: Detailed debugging information (dev only)
+- **`log` (info)**: General informational messages
+- **`warn`**: Warning messages for potential issues
+- **`error`**: Error messages with stack traces
+
+```typescript
+this.logger.debug('Processing request', { requestId });
+this.logger.log('Operation completed', { duration: '120ms' });
+this.logger.warn('Rate limit approaching', { current: 95, limit: 100 });
+this.logger.error('Database connection failed', error.stack, { host });
+```
+
+### What to Log
+
+**✅ Do Log:**
+
+- Important operations (CRUD operations, state changes)
+- API requests/responses (automatically handled by middleware)
+- Error conditions with context
+- Performance metrics
+- Security events (login attempts, permission denials)
+
+**❌ Don't Log:**
+
+- Sensitive data (passwords, tokens, credit cards)
+- Personally Identifiable Information (PII) without sanitization
+- Large payloads (log IDs instead)
+- Excessive debug information in production
+
+### Correlation IDs
+
+The logger automatically includes correlation IDs from the `X-Correlation-ID` header for request tracing:
+
+```typescript
+// Correlation ID is automatically included in all logs during a request
+this.logger.log('Processing shift', { shiftId }); // Includes correlationId automatically
+```
+
+**Debugging with Correlation IDs:**
+
+```bash
+# Search logs for specific request
+grep "abc-123-def" logs/combined-2025-11-11.log
+```
+
+### Sensitive Data Sanitization
+
+The logger automatically sanitizes sensitive fields. If you need to log objects that might contain sensitive data, they will be sanitized:
+
+```typescript
+// Password, token, etc. will be automatically redacted
+this.logger.log('User data', {
+  email: 'user@example.com',
+  password: 'secret123', // Will be replaced with '[REDACTED]'
+});
+```
+
+**For more details**, see [LOGGING.md](./LOGGING.md).
 
 ---
 
@@ -352,6 +476,7 @@ pnpm format
 ### Writing Tests
 
 **Unit Tests (Vitest):**
+
 ```typescript
 // apps/api/src/shifts/shifts.service.spec.ts
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -387,13 +512,14 @@ describe('ShiftsService', () => {
         employeeId: '123',
         startTime: new Date('2025-12-01T10:00:00Z'),
         endTime: new Date('2025-12-01T18:00:00Z'),
-      })
+      }),
     ).rejects.toThrow('Shift conflict');
   });
 });
 ```
 
 **E2E Tests (Playwright):**
+
 ```typescript
 // e2e/shifts.spec.ts
 import { test, expect } from '@playwright/test';
@@ -453,27 +579,33 @@ When creating a PR, the template will be auto-populated. Fill it out completely:
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Related Issues
+
 Closes #123
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] E2E tests added/updated
 - [ ] Manual testing performed
 
 ## Screenshots (if applicable)
+
 Add screenshots for UI changes
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Commented complex code
@@ -486,6 +618,7 @@ Add screenshots for UI changes
 ### PR Guidelines
 
 **Good PRs:**
+
 - ✅ Focus on single concern
 - ✅ Have clear title and description
 - ✅ Include tests
@@ -494,6 +627,7 @@ Add screenshots for UI changes
 - ✅ Have meaningful commit messages
 
 **Avoid:**
+
 - ❌ Multiple unrelated changes
 - ❌ Large refactors + new features
 - ❌ Missing tests
@@ -532,11 +666,13 @@ Add screenshots for UI changes
 ### Issue Templates
 
 **Bug Report:**
+
 ```markdown
 **Describe the bug**
 Clear description of the bug
 
 **To Reproduce**
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -549,6 +685,7 @@ What should happen
 If applicable
 
 **Environment:**
+
 - OS: [e.g., macOS 14.1]
 - Browser: [e.g., Chrome 120]
 - Version: [e.g., 1.0.0]
@@ -558,6 +695,7 @@ Any other relevant information
 ```
 
 **Feature Request:**
+
 ```markdown
 **Is your feature request related to a problem?**
 Clear description of the problem

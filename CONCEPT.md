@@ -2246,77 +2246,100 @@ afterEach(async () => {
 
 ## 13. Error Handling & Logging
 
-### 13.1 Strukturiertes Logging (Pino)
+### 13.1 Strukturiertes Logging (Winston)
+
+✅ **Winston Logging ist vollständig implementiert!** (siehe `apps/api/src/common/logger/`)
+
+Das API verwendet **Winston 3.15** mit `nest-winston` für strukturiertes, production-ready Logging.
+
+**Implementierte Features:**
+
+- ✅ Strukturiertes JSON-Logging
+- ✅ Correlation IDs für Request-Tracking (`X-Correlation-ID`)
+- ✅ Daily Log Rotation (14-Tage Retention, 20MB max)
+- ✅ Context-aware Logging (HTTP, Database, etc.)
+- ✅ Sensitive Data Sanitization
+- ✅ Environment-basierte Log Levels
+- ✅ Health Check Endpoints
 
 **Setup:**
 
 ```bash
-npm install pino pino-pretty
+pnpm add winston nest-winston winston-daily-rotate-file
 ```
 
+**AppLoggerService Usage:**
+
 ```typescript
-// apps/api/src/logger/logger.service.ts
-import { Injectable, LoggerService } from '@nestjs/common';
-import pino from 'pino';
+// In jedem Service/Controller
+import { AppLoggerService } from '@/common/logger/logger.service';
 
-@Injectable()
-export class PinoLogger implements LoggerService {
-  private logger = pino({
-    level: process.env.LOG_LEVEL || 'info',
-    transport:
-      process.env.NODE_ENV === 'development'
-        ? {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-            },
-          }
-        : undefined,
-  });
-
-  log(message: string, context?: string) {
-    this.logger.info({ context }, message);
+export class ShiftService {
+  constructor(private readonly logger: AppLoggerService) {
+    this.logger.setContext('ShiftService');
   }
 
-  error(message: string, trace?: string, context?: string) {
-    this.logger.error({ context, trace }, message);
-  }
+  async createShift(data: CreateShiftDto) {
+    this.logger.log('Creating new shift', {
+      organizationId: data.organizationId,
+      employeeId: data.employeeId,
+      date: data.date,
+    });
 
-  warn(message: string, context?: string) {
-    this.logger.warn({ context }, message);
-  }
+    try {
+      const shift = await this.shiftRepository.create(data);
 
-  debug(message: string, context?: string) {
-    this.logger.debug({ context }, message);
+      this.logger.log('Shift created successfully', {
+        shiftId: shift.id,
+      });
+
+      return shift;
+    } catch (error) {
+      this.logger.error('Failed to create shift', error.stack, {
+        data,
+        errorMessage: error.message,
+      });
+      throw error;
+    }
   }
 }
 ```
 
-**Logging Best Practices:**
+**Correlation ID Tracking:**
+
+Jeder HTTP-Request erhält automatisch eine eindeutige Correlation ID:
 
 ```typescript
-// Structured logging with context
-this.logger.info(
-  {
-    userId: user.id,
-    organizationId: org.id,
-    action: 'shift.created',
-    shiftId: shift.id,
-  },
-  'Shift created successfully',
-);
+// Automatisch im Request-Header:
+X-Correlation-ID: abc-123-def-456
 
-// Error logging with stack trace
-this.logger.error(
-  {
-    error: error.message,
-    stack: error.stack,
-    userId: user.id,
-    requestId: request.id,
-  },
-  'Failed to create shift',
-);
+// In allen Logs:
+{
+  "level": "info",
+  "message": "Incoming request",
+  "correlationId": "abc-123-def-456",
+  "context": "HTTP",
+  "method": "GET",
+  "url": "/api/shifts"
+}
 ```
+
+**Log Levels nach Environment:**
+
+- **Development**: `debug` (alle Logs im Terminal, colorized)
+- **Production**: `info` (JSON-Format, Console + File)
+
+**Health Check Endpoints:**
+
+```typescript
+GET / health; // Basic health check
+GET / health / ready; // Readiness probe (DB + Redis)
+GET / health / live; // Liveness probe
+```
+
+**Detaillierte Dokumentation:** Siehe [LOGGING.md](./LOGGING.md) für vollständige Konfiguration und Best Practices
+
+````
 
 ### 13.2 Sentry Integration
 
@@ -2324,7 +2347,7 @@ this.logger.error(
 
 ```bash
 npm install @sentry/node @sentry/nextjs
-```
+````
 
 ```typescript
 // apps/api/src/main.ts

@@ -52,6 +52,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Loki (logs)
 - Sentry (error tracking)
 
+### Logging System
+
+The API service uses **Winston 3.15** with structured logging and correlation ID tracking:
+
+- **Location**: `apps/api/src/common/logger/`
+- **Service**: `AppLoggerService` - Injectable logger for all services/controllers
+- **Features**:
+  - Structured JSON logging
+  - Correlation IDs for request tracking (`X-Correlation-ID` header)
+  - Daily log rotation (14-day retention, 20MB max)
+  - Environment-based log levels (debug in dev, info in prod)
+  - Sensitive data sanitization
+- **Health Checks**: Available at `/health`, `/health/ready`, `/health/live`
+- **Documentation**: See [LOGGING.md](./LOGGING.md) for detailed configuration and usage
+
+**Quick Usage:**
+
+```typescript
+import { AppLoggerService } from '@/common/logger/logger.service';
+
+export class MyService {
+  constructor(private readonly logger: AppLoggerService) {
+    this.logger.setContext('MyService');
+  }
+
+  someMethod() {
+    this.logger.log('Operation started', { key: 'value' });
+    this.logger.error('Operation failed', error.stack, { context });
+  }
+}
+```
+
 ## Monorepo Structure
 
 This project uses **pnpm workspaces** in a monorepo architecture:

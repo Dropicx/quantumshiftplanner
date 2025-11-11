@@ -11,6 +11,7 @@ Common issues and their solutions for Planday Clone development and deployment.
 - [Authentication Issues](#authentication-issues)
 - [API Issues](#api-issues)
 - [Build & Deployment Issues](#build--deployment-issues)
+- [Logging & Debugging](#logging--debugging)
 - [Performance Issues](#performance-issues)
 - [Mobile App Issues](#mobile-app-issues)
 
@@ -21,11 +22,13 @@ Common issues and their solutions for Planday Clone development and deployment.
 ### Port Already in Use
 
 **Problem:**
+
 ```
 Error: listen EADDRINUSE: address already in use :::3000
 ```
 
 **Solution:**
+
 ```bash
 # Find process using the port
 lsof -ti:3000  # macOS/Linux
@@ -42,11 +45,13 @@ PORT=3002
 ### Module Not Found
 
 **Problem:**
+
 ```
 Error: Cannot find module '@planday/database'
 ```
 
 **Solution:**
+
 ```bash
 # 1. Clean install
 pnpm clean
@@ -66,11 +71,13 @@ Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server"
 ### TypeScript Errors After Update
 
 **Problem:**
+
 ```
 Type 'X' is not assignable to type 'Y'
 ```
 
 **Solution:**
+
 ```bash
 # 1. Rebuild all packages
 pnpm build
@@ -91,6 +98,7 @@ cat tsconfig.json
 **Problem:** Changes don't reflect in browser
 
 **Solution:**
+
 ```bash
 # 1. Check .next cache
 rm -rf apps/web/.next
@@ -115,6 +123,7 @@ reactStrictMode: false
 **Problem:** `process.env.VARIABLE` is undefined
 
 **Solution:**
+
 ```bash
 # 1. Check file name
 # Next.js: .env.local (not .env)
@@ -138,11 +147,13 @@ cat .gitignore | grep .env
 ### Connection Refused
 
 **Problem:**
+
 ```
 Error: connect ECONNREFUSED 127.0.0.1:5432
 ```
 
 **Solution:**
+
 ```bash
 # 1. Check PostgreSQL is running
 pg_isready
@@ -167,11 +178,13 @@ psql postgresql://user:password@localhost:5432/dbname
 ### Migration Fails
 
 **Problem:**
+
 ```
 Error: relation "users" already exists
 ```
 
 **Solution:**
+
 ```bash
 # 1. Check current migrations
 pnpm db:studio
@@ -196,6 +209,7 @@ SELECT * FROM drizzle_migrations;
 **Problem:** Queries take > 1 second
 
 **Solution:**
+
 ```sql
 -- 1. Check query explain
 EXPLAIN ANALYZE
@@ -216,11 +230,13 @@ FROM pg_tables WHERE schemaname = 'public';
 ### Too Many Connections
 
 **Problem:**
+
 ```
 Error: sorry, too many clients already
 ```
 
 **Solution:**
+
 ```typescript
 // 1. Use connection pooling
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -247,11 +263,13 @@ brew services restart postgresql@17
 ### Clerk Token Expired
 
 **Problem:**
+
 ```
 Error: Invalid token
 ```
 
 **Solution:**
+
 ```typescript
 // Frontend: Force token refresh
 const { getToken } = useAuth();
@@ -270,6 +288,7 @@ await clerkClient.sessions.getToken(sessionId, 'your-template');
 **Problem:** Redirects between /sign-in and /dashboard
 
 **Solution:**
+
 ```typescript
 // 1. Check middleware config
 // middleware.ts
@@ -296,6 +315,7 @@ if (!orgId) {
 **Problem:** Clerk webhooks not triggering
 
 **Solution:**
+
 ```bash
 # 1. Check webhook URL is accessible
 curl https://your-api.com/webhooks/clerk
@@ -319,6 +339,7 @@ echo $CLERK_WEBHOOK_SECRET
 **Problem:** User logged out after page refresh
 
 **Solution:**
+
 ```typescript
 // 1. Check tokenCache (mobile)
 import { MMKV } from 'react-native-mmkv';
@@ -353,11 +374,13 @@ async headers() {
 ### CORS Error
 
 **Problem:**
+
 ```
 Access to fetch blocked by CORS policy
 ```
 
 **Solution:**
+
 ```typescript
 // apps/api/src/main.ts
 app.enableCors({
@@ -379,6 +402,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001  // Must match backend
 **Problem:** API returns 401 even with valid token
 
 **Solution:**
+
 ```typescript
 // 1. Check token is sent
 console.log(await getToken());
@@ -404,11 +428,13 @@ console.log('User ID:', payload.sub);
 ### Rate Limit Exceeded
 
 **Problem:**
+
 ```
 Error: Too Many Requests (429)
 ```
 
 **Solution:**
+
 ```typescript
 // 1. Check current limits
 // apps/api/src/main.ts
@@ -437,6 +463,7 @@ limit: isDevelopment ? 10000 : 100,
 **Problem:** Build succeeds locally but fails on Railway
 
 **Solution:**
+
 ```dockerfile
 # 1. Check Node version matches
 FROM node:22-alpine
@@ -458,11 +485,13 @@ docker build -f dockerfiles/Dockerfile.web .
 ### Next.js Build Out of Memory
 
 **Problem:**
+
 ```
 FATAL ERROR: Reached heap limit
 ```
 
 **Solution:**
+
 ```json
 // package.json
 {
@@ -481,6 +510,7 @@ NODE_OPTIONS=--max-old-space-size=4096
 **Problem:** Migration works locally but fails in prod
 
 **Solution:**
+
 ```bash
 # 1. Check DATABASE_URL
 railway variables | grep DATABASE_URL
@@ -502,6 +532,7 @@ railway run npm run db:migrate
 **Problem:** Images/fonts return 404
 
 **Solution:**
+
 ```typescript
 // 1. Use Next.js Image component
 import Image from 'next/image';
@@ -522,6 +553,205 @@ images: {
 
 ---
 
+## 📊 Logging & Debugging
+
+### Accessing Logs
+
+**Development:**
+
+```bash
+# Logs are printed to console/terminal
+pnpm --filter @planday/api dev
+
+# Look for correlation IDs in logs
+# Example: [HTTP][abc-123-def] Incoming request
+```
+
+**Production (Railway):**
+
+```bash
+# View API logs
+railway logs -s api
+
+# View worker logs
+railway logs -s worker
+
+# Follow logs in real-time
+railway logs -s api --follow
+
+# Search for specific correlation ID
+railway logs -s api | grep "abc-123-def"
+```
+
+**Log Files (Production):**
+
+- **Location**: `logs/` directory in API service container
+- **Error logs**: `logs/error-YYYY-MM-DD.log`
+- **Combined logs**: `logs/combined-YYYY-MM-DD.log`
+- **Retention**: 14 days, auto-rotated daily
+
+### No Logs Appearing
+
+**Problem:** Logger not showing any output
+
+**Solution:**
+
+```typescript
+// 1. Check logger is injected
+import { AppLoggerService } from '@/common/logger/logger.service';
+
+export class MyService {
+  constructor(private readonly logger: AppLoggerService) {
+    this.logger.setContext('MyService'); // ✅ Set context
+  }
+}
+
+// 2. Check log level
+// .env
+LOG_LEVEL=debug  # For development
+
+// 3. Check logger module is imported
+// app.module.ts
+@Module({
+  imports: [LoggerModule], // ✅ Must be imported
+})
+```
+
+### Tracking Requests with Correlation IDs
+
+**Problem:** Need to trace a specific request across services
+
+**Solution:**
+
+```typescript
+// 1. Frontend: Include correlation ID in request
+const correlationId = crypto.randomUUID();
+const response = await fetch('/api/shifts', {
+  headers: {
+    'X-Correlation-ID': correlationId,
+  },
+});
+
+// 2. Search logs for that correlation ID
+grep "abc-123-def" logs/combined-2025-11-11.log
+
+// 3. Or in Railway
+railway logs -s api | grep "abc-123-def"
+```
+
+**Log output will show:**
+
+```json
+{
+  "level": "info",
+  "correlationId": "abc-123-def",
+  "message": "Incoming request",
+  "method": "GET",
+  "url": "/api/shifts"
+}
+```
+
+### Health Check Failures
+
+**Problem:** Health checks returning errors
+
+**Solution:**
+
+```bash
+# 1. Check health endpoint manually
+curl https://your-api.railway.app/health
+curl https://your-api.railway.app/health/ready
+
+# 2. Check database connection
+# Should show "database": { "status": "up" }
+
+# 3. Check Redis connection
+# Should show "redis": { "status": "up" }
+
+# 4. View detailed logs
+railway logs -s api --follow
+
+# 5. Common issues:
+# - DATABASE_URL incorrect
+# - REDIS_URL incorrect
+# - Database not started
+# - Redis out of memory
+```
+
+### Debugging API Errors
+
+**Problem:** API returning 500 errors
+
+**Solution:**
+
+```bash
+# 1. Check logs for stack traces
+railway logs -s api | grep "error"
+
+# 2. Look for correlation ID in error response
+# Frontend:
+console.log(response.headers.get('X-Correlation-ID'));
+
+# 3. Search logs by correlation ID
+railway logs -s api | grep "correlation-id-here"
+
+# 4. Enable debug logging (development)
+LOG_LEVEL=debug pnpm dev
+
+# 5. Check common issues:
+# - Database query syntax errors
+# - Missing environment variables
+# - Invalid JWT tokens
+# - Rate limiting triggered
+```
+
+### Log File Rotation Issues
+
+**Problem:** Log files not rotating or growing too large
+
+**Solution:**
+
+```bash
+# 1. Check rotation settings in logger.service.ts
+# Default: 20MB max, 14 days retention
+
+# 2. Manually clean old logs (if needed)
+find logs/ -name "*.log" -mtime +14 -delete
+
+# 3. Check disk space
+df -h
+
+# 4. In Railway, logs are ephemeral (container restarts clear them)
+# Use external log aggregation (Loki, Datadog, etc.) for long-term storage
+```
+
+### Sensitive Data in Logs
+
+**Problem:** Accidentally logging passwords or tokens
+
+**Solution:**
+
+```typescript
+// Logger automatically sanitizes these fields:
+// - password, token, secret, authorization, apiKey, etc.
+
+// Example (password will be redacted):
+this.logger.log('User login', {
+  email: 'user@example.com',
+  password: 'secret123', // Automatically becomes '[REDACTED]'
+});
+
+// Best practice: Don't log sensitive data at all
+this.logger.log('User login', {
+  userId: user.id, // ✅ Safe
+  // password: user.password, // ❌ Never do this
+});
+```
+
+**For more details**, see [LOGGING.md](./LOGGING.md).
+
+---
+
 ## ⚡ Performance Issues
 
 ### Slow Page Load
@@ -529,6 +759,7 @@ images: {
 **Problem:** Pages take > 3 seconds to load
 
 **Solution:**
+
 ```typescript
 // 1. Use React Server Components
 // app/dashboard/page.tsx
@@ -569,6 +800,7 @@ const ExpensiveComponent = React.memo(({ data }) => {
 **Problem:** Query takes > 500ms
 
 **Solution:**
+
 ```typescript
 // 1. Add indexes
 await db.execute(sql`
@@ -606,13 +838,14 @@ console.timeEnd('query');
 **Problem:** Memory usage grows over time
 
 **Solution:**
+
 ```typescript
 // 1. Clean up useEffect
 useEffect(() => {
   const subscription = api.subscribe();
 
   return () => {
-    subscription.unsubscribe();  // ✅ Clean up
+    subscription.unsubscribe(); // ✅ Clean up
   };
 }, []);
 
@@ -620,7 +853,7 @@ useEffect(() => {
 useEffect(() => {
   const interval = setInterval(() => {}, 1000);
 
-  return () => clearInterval(interval);  // ✅ Clean up
+  return () => clearInterval(interval); // ✅ Clean up
 }, []);
 
 // 3. Close database connections
@@ -639,6 +872,7 @@ await client.end();
 **Problem:** `expo build` fails
 
 **Solution:**
+
 ```bash
 # 1. Clear cache
 expo start -c
@@ -662,6 +896,7 @@ expo doctor
 **Problem:** App doesn't open from link
 
 **Solution:**
+
 ```json
 // app.json
 {
@@ -686,6 +921,7 @@ xcrun simctl openurl booted "plandayclone://shift/123"
 **Problem:** Notifications not arriving
 
 **Solution:**
+
 ```typescript
 // 1. Check FCM configuration
 console.log(process.env.FCM_PROJECT_ID);
