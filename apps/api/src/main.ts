@@ -5,7 +5,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 import { ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 
 import { validateEnv } from '@planday/config';
 
@@ -56,8 +59,10 @@ async function bootstrap() {
 
   // Global exception filter and interceptor are registered via APP_FILTER and APP_INTERCEPTOR in AppModule
 
-  // API prefix
-  app.setGlobalPrefix('api');
+  // API prefix (exclude root path for health checks)
+  app.setGlobalPrefix('api', {
+    exclude: ['/'],
+  });
 
   // Swagger documentation (disabled temporarily)
   // if (env.NODE_ENV === 'development') {

@@ -1,12 +1,20 @@
-import { Controller, Get, Redirect } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
   @Get()
-  @Redirect('/api/health', 302)
   getRoot() {
-    // Redirect root path to health check endpoint
-    // This prevents 404 errors from health check probes
-    return;
+    // Root endpoint for health check probes
+    return {
+      status: 'ok',
+      message: 'Planday API is running',
+      version: '1.0.0',
+      endpoints: {
+        health: '/api/health',
+        healthReady: '/api/health/ready',
+        healthLive: '/api/health/live',
+        docs: '/api/docs',
+      },
+    };
   }
 }
