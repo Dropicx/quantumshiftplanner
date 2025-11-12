@@ -1,13 +1,35 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Job } from 'bullmq';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { EmailProcessorService } from './email.processor';
 
+// Type for email job data
+interface EmailJob {
+  type: 'shift-assigned' | 'shift-reminder' | 'password-reset' | 'welcome';
+  to: string;
+  subject: string;
+  data: Record<string, unknown>;
+}
+
+// Type for service with private methods exposed for testing
+type EmailProcessorServiceWithPrivate = EmailProcessorService & {
+  // eslint-disable-next-line no-unused-vars
+  parseRedisUrl: (_url: string) => {
+    host: string;
+    port: number;
+    password?: string;
+  };
+  // eslint-disable-next-line no-unused-vars
+  processEmail: (_jobData: EmailJob) => Promise<void>;
+};
+
 // Mock BullMQ Worker
 const mockWorkerClose = vi.fn().mockResolvedValue(undefined);
 const mockWorkerOn = vi.fn();
-let workerProcessor: any = null;
+// eslint-disable-next-line no-unused-vars
+let workerProcessor: ((_job: Job<EmailJob>) => Promise<unknown>) | null = null;
 
 vi.mock('bullmq', () => ({
   Worker: vi.fn().mockImplementation((_queueName, processor) => {
@@ -21,7 +43,7 @@ vi.mock('bullmq', () => ({
 }));
 
 describe('EmailProcessorService', () => {
-  let service: EmailProcessorService;
+  let service: EmailProcessorServiceWithPrivate;
   const originalEnv = process.env;
 
   beforeEach(async () => {
@@ -49,7 +71,7 @@ describe('EmailProcessorService', () => {
 
   describe('parseRedisUrl', () => {
     it('should parse standard Redis URL', () => {
-      const result = (service as any).parseRedisUrl('redis://localhost:6379');
+      const result = service.parseRedisUrl('redis://localhost:6379');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -58,7 +80,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with password', () => {
-      const result = (service as any).parseRedisUrl(
+      const result = service.parseRedisUrl(
         'redis://:mypassword@localhost:6379',
       );
 
@@ -70,9 +92,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with username and password', () => {
-      const result = (service as any).parseRedisUrl(
-        'redis://user:pass@localhost:6379',
-      );
+      const result = service.parseRedisUrl('redis://user:pass@localhost:6379');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -82,7 +102,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with custom port', () => {
-      const result = (service as any).parseRedisUrl('redis://localhost:6380');
+      const result = service.parseRedisUrl('redis://localhost:6380');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -91,9 +111,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with remote host', () => {
-      const result = (service as any).parseRedisUrl(
-        'redis://redis.example.com:6379',
-      );
+      const result = service.parseRedisUrl('redis://redis.example.com:6379');
 
       expect(result).toEqual({
         host: 'redis.example.com',
@@ -102,7 +120,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should use default port when not specified', () => {
-      const result = (service as any).parseRedisUrl('redis://localhost');
+      const result = service.parseRedisUrl('redis://localhost');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -111,7 +129,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should fallback to localhost on invalid URL', () => {
-      const result = (service as any).parseRedisUrl('invalid-url');
+      const result = service.parseRedisUrl('invalid-url');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -120,7 +138,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should fallback to localhost on empty URL', () => {
-      const result = (service as any).parseRedisUrl('');
+      const result = service.parseRedisUrl('');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -219,7 +237,7 @@ describe('EmailProcessorService', () => {
 
       const logSpy = vi.spyOn(Logger.prototype, 'log');
 
-      await (service as any).processEmail(jobData);
+      await service.processEmail(jobData);
 
       expect(logSpy).toHaveBeenCalledWith(
         expect.stringContaining('📧 Email to be sent:'),
@@ -248,9 +266,7 @@ describe('EmailProcessorService', () => {
           data: {},
         };
 
-        await expect(
-          (service as any).processEmail(jobData),
-        ).resolves.toBeUndefined();
+        await expect(service.processEmail(jobData)).resolves.toBeUndefined();
       }
     });
 
@@ -263,7 +279,7 @@ describe('EmailProcessorService', () => {
       };
 
       const start = Date.now();
-      await (service as any).processEmail(jobData);
+      await service.processEmail(jobData);
       const duration = Date.now() - start;
 
       expect(duration).toBeGreaterThanOrEqual(90); // Allow some tolerance
@@ -340,7 +356,7 @@ describe('EmailProcessorService', () => {
 
       // Mock processEmail to throw error
       const error = new Error('Email processing failed');
-      vi.spyOn(service as any, 'processEmail').mockRejectedValueOnce(error);
+      vi.spyOn(service, 'processEmail').mockRejectedValueOnce(error);
 
       const mockJob = {
         id: 'job-error',

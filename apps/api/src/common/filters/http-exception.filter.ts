@@ -17,6 +17,13 @@ interface RequestWithCorrelation extends FastifyRequest {
   correlationId?: string;
 }
 
+// Interface for response with NestJS compatibility methods
+interface ResponseWithStatus extends FastifyReply {
+  // eslint-disable-next-line no-unused-vars
+  status?: (_statusCode: number) => ResponseWithStatus;
+  statusCode?: number;
+}
+
 @Injectable()
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -111,7 +118,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // For Fastify, we need to use the reply object's methods
     // NestJS wraps FastifyReply, but the methods should still be accessible
-    const reply = response as FastifyReply;
+    const reply = response as ResponseWithStatus;
 
     // Use Fastify's reply methods: code() sets status, send() sends response
     // NestJS Fastify adapter also provides status() for compatibility
@@ -128,16 +135,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       // Try NestJS compatibility wrapper status().send() chain
       if (
-        typeof (reply as any).status === 'function' &&
+        typeof reply.status === 'function' &&
         typeof reply.send === 'function'
       ) {
-        (reply as any).status(status).send(responsePayload);
+        reply.status(status).send(responsePayload);
         return;
       }
 
       // Try setting statusCode and using send()
       if (typeof reply.send === 'function') {
-        (reply as any).statusCode = status;
+        reply.statusCode = status;
         reply.send(responsePayload);
         return;
       }
@@ -157,7 +164,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       // If all methods fail, log error
       this.logger.error(
-        `Failed to send error response - no valid response method found. Response type: ${typeof reply}, has code: ${typeof reply.code}, has status: ${typeof (reply as any).status}, has send: ${typeof reply.send}, has raw: ${!!reply.raw}`,
+        `Failed to send error response - no valid response method found. Response type: ${typeof reply}, has code: ${typeof reply.code}, has status: ${typeof reply.status}, has send: ${typeof reply.send}, has raw: ${!!reply.raw}`,
         undefined,
         'ExceptionFilter',
         correlationId,
