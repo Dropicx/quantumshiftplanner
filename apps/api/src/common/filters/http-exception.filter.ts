@@ -17,12 +17,16 @@ interface RequestWithCorrelation extends FastifyRequest {
   correlationId?: string;
 }
 
-// Interface for response with NestJS compatibility methods
-interface ResponseWithStatus extends FastifyReply {
+// Type for response with NestJS compatibility methods
+// Note: FastifyReply may already have a status() method, so we use intersection
+// with a type that allows optional override via index signature
+type ResponseWithStatus = FastifyReply & {
+  // NestJS compatibility wrapper - check existence before use
   // eslint-disable-next-line no-unused-vars
-  status?: (_statusCode: number) => ResponseWithStatus;
+  status?: (_statusCode: number) => FastifyReply;
+  // Direct statusCode property for fallback
   statusCode?: number;
-}
+};
 
 @Injectable()
 @Catch()

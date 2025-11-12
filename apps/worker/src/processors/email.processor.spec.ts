@@ -13,8 +13,9 @@ interface EmailJob {
   data: Record<string, unknown>;
 }
 
-// Type for service with private methods exposed for testing
-type EmailProcessorServiceWithPrivate = EmailProcessorService & {
+// Type for accessing private methods in tests
+// Using a separate interface to avoid TypeScript intersection issues with private methods
+interface EmailProcessorServiceTestAccess {
   // eslint-disable-next-line no-unused-vars
   parseRedisUrl: (_url: string) => {
     host: string;
@@ -23,7 +24,9 @@ type EmailProcessorServiceWithPrivate = EmailProcessorService & {
   };
   // eslint-disable-next-line no-unused-vars
   processEmail: (_jobData: EmailJob) => Promise<void>;
-};
+  start: () => Promise<void>;
+  onModuleDestroy: () => Promise<void>;
+}
 
 // Mock BullMQ Worker
 const mockWorkerClose = vi.fn().mockResolvedValue(undefined);
@@ -43,7 +46,8 @@ vi.mock('bullmq', () => ({
 }));
 
 describe('EmailProcessorService', () => {
-  let service: EmailProcessorServiceWithPrivate;
+  let service: EmailProcessorService;
+  let serviceTest: EmailProcessorServiceTestAccess;
   const originalEnv = process.env;
 
   beforeEach(async () => {
@@ -63,6 +67,8 @@ describe('EmailProcessorService', () => {
     }).compile();
 
     service = module.get<EmailProcessorService>(EmailProcessorService);
+    // Type assertion for accessing private methods in tests
+    serviceTest = service as unknown as EmailProcessorServiceTestAccess;
   });
 
   afterEach(() => {
@@ -71,7 +77,7 @@ describe('EmailProcessorService', () => {
 
   describe('parseRedisUrl', () => {
     it('should parse standard Redis URL', () => {
-      const result = service.parseRedisUrl('redis://localhost:6379');
+      const result = serviceTest.parseRedisUrl('redis://localhost:6379');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -80,7 +86,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with password', () => {
-      const result = service.parseRedisUrl(
+      const result = serviceTest.parseRedisUrl(
         'redis://:mypassword@localhost:6379',
       );
 
@@ -92,7 +98,9 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with username and password', () => {
-      const result = service.parseRedisUrl('redis://user:pass@localhost:6379');
+      const result = serviceTest.parseRedisUrl(
+        'redis://user:pass@localhost:6379',
+      );
 
       expect(result).toEqual({
         host: 'localhost',
@@ -102,7 +110,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with custom port', () => {
-      const result = service.parseRedisUrl('redis://localhost:6380');
+      const result = serviceTest.parseRedisUrl('redis://localhost:6380');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -111,7 +119,9 @@ describe('EmailProcessorService', () => {
     });
 
     it('should parse Redis URL with remote host', () => {
-      const result = service.parseRedisUrl('redis://redis.example.com:6379');
+      const result = serviceTest.parseRedisUrl(
+        'redis://redis.example.com:6379',
+      );
 
       expect(result).toEqual({
         host: 'redis.example.com',
@@ -120,7 +130,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should use default port when not specified', () => {
-      const result = service.parseRedisUrl('redis://localhost');
+      const result = serviceTest.parseRedisUrl('redis://localhost');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -129,7 +139,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should fallback to localhost on invalid URL', () => {
-      const result = service.parseRedisUrl('invalid-url');
+      const result = serviceTest.parseRedisUrl('invalid-url');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -138,7 +148,7 @@ describe('EmailProcessorService', () => {
     });
 
     it('should fallback to localhost on empty URL', () => {
-      const result = service.parseRedisUrl('');
+      const result = serviceTest.parseRedisUrl('');
 
       expect(result).toEqual({
         host: 'localhost',
@@ -237,7 +247,7 @@ describe('EmailProcessorService', () => {
 
       const logSpy = vi.spyOn(Logger.prototype, 'log');
 
-      await service.processEmail(jobData);
+      await serviceTest.processEmail(jobData);
 
       expect(logSpy).toHaveBeenCalledWith(
         expect.stringContaining('📧 Email to be sent:'),
@@ -266,7 +276,9 @@ describe('EmailProcessorService', () => {
           data: {},
         };
 
-        await expect(service.processEmail(jobData)).resolves.toBeUndefined();
+        await expect(
+          serviceTest.processEmail(jobData),
+        ).resolves.toBeUndefined();
       }
     });
 
@@ -279,7 +291,7 @@ describe('EmailProcessorService', () => {
       };
 
       const start = Date.now();
-      await service.processEmail(jobData);
+      await serviceTest.processEmail(jobData);
       const duration = Date.now() - start;
 
       expect(duration).toBeGreaterThanOrEqual(90); // Allow some tolerance
@@ -298,9 +310,10 @@ describe('EmailProcessorService', () => {
           subject: 'Test',
           data: {},
         },
-      };
+      } as Job<EmailJob>;
 
-      const result = await workerProcessor(mockJob);
+      expect(workerProcessor).not.toBeNull();
+      const result = await workerProcessor!(mockJob);
 
       expect(result).toEqual({ success: true });
     });
@@ -318,9 +331,10 @@ describe('EmailProcessorService', () => {
           subject: 'Welcome',
           data: {},
         },
-      };
+      } as Job<EmailJob>;
 
-      await workerProcessor(mockJob);
+      expect(workerProcessor).not.toBeNull();
+      await workerProcessor!(mockJob);
 
       expect(logSpy).toHaveBeenCalledWith(
         'Processing email job: job-456 - Type: welcome',
@@ -340,9 +354,10 @@ describe('EmailProcessorService', () => {
           subject: 'Reminder',
           data: {},
         },
-      };
+      } as Job<EmailJob>;
 
-      await workerProcessor(mockJob);
+      expect(workerProcessor).not.toBeNull();
+      await workerProcessor!(mockJob);
 
       expect(logSpy).toHaveBeenCalledWith(
         'Email job job-789 completed successfully',
@@ -356,7 +371,7 @@ describe('EmailProcessorService', () => {
 
       // Mock processEmail to throw error
       const error = new Error('Email processing failed');
-      vi.spyOn(service, 'processEmail').mockRejectedValueOnce(error);
+      vi.spyOn(serviceTest, 'processEmail').mockRejectedValueOnce(error);
 
       const mockJob = {
         id: 'job-error',
@@ -366,9 +381,10 @@ describe('EmailProcessorService', () => {
           subject: 'Test',
           data: {},
         },
-      };
+      } as Job<EmailJob>;
 
-      await expect(workerProcessor(mockJob)).rejects.toThrow(
+      expect(workerProcessor).not.toBeNull();
+      await expect(workerProcessor!(mockJob)).rejects.toThrow(
         'Email processing failed',
       );
       expect(errorSpy).toHaveBeenCalledWith(
