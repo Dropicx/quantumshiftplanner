@@ -122,7 +122,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // For Fastify, we need to use the reply object's methods
     // NestJS wraps FastifyReply, but the methods should still be accessible
-    const reply = response as ResponseWithStatus;
+    // Access response object without type casting first to check actual structure
+    const reply = response as unknown as ResponseWithStatus;
 
     // Use Fastify's reply methods: code() sets status, send() sends response
     // NestJS Fastify adapter also provides status() for compatibility
@@ -148,27 +149,73 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       // Try setting statusCode and using send()
       if (typeof reply.send === 'function') {
-        reply.statusCode = status;
+        (reply as { statusCode?: number }).statusCode = status;
         reply.send(responsePayload);
         return;
       }
 
-      // Fallback: use raw Node.js response
-      const rawResponse = reply.raw;
+      // Try accessing raw response through different paths
+      // NestJS might wrap the response differently
+      // Also check if response itself is the raw Node.js response
+      const responseAsAny = response as unknown as Record<string, unknown>;
+      const rawResponse =
+        (reply as { raw?: unknown }).raw ||
+        (response as { raw?: unknown }).raw ||
+        (response as unknown as { res?: { raw?: unknown } }).res?.raw ||
+        // Check if response itself has end method (might be raw Node.js response)
+        (typeof responseAsAny.end === 'function' ? responseAsAny : null);
+
       if (
         rawResponse &&
-        typeof rawResponse.end === 'function' &&
-        !rawResponse.headersSent
+        typeof rawResponse === 'object' &&
+        'end' in rawResponse &&
+        typeof (rawResponse as { end: unknown }).end === 'function' &&
+        !(rawResponse as { headersSent?: boolean }).headersSent
       ) {
-        rawResponse.statusCode = status;
-        rawResponse.setHeader('Content-Type', 'application/json');
-        rawResponse.end(JSON.stringify(responsePayload));
+        const nodeResponse = rawResponse as {
+          statusCode?: number;
+          // eslint-disable-next-line no-unused-vars
+          setHeader: (_name: string, _value: string) => void;
+          // eslint-disable-next-line no-unused-vars
+          end: (_chunk: string) => void;
+          headersSent?: boolean;
+        };
+        nodeResponse.statusCode = status;
+        nodeResponse.setHeader('Content-Type', 'application/json');
+        nodeResponse.end(JSON.stringify(responsePayload));
         return;
       }
 
-      // If all methods fail, log error
+      // Last resort: try to access response through request
+      const requestRaw = request.raw as unknown as {
+        res?: {
+          statusCode?: number;
+          // eslint-disable-next-line no-unused-vars
+          setHeader?: (_name: string, _value: string) => void;
+          // eslint-disable-next-line no-unused-vars
+          end?: (_chunk: string) => void;
+          headersSent?: boolean;
+        };
+      };
+
+      if (
+        requestRaw?.res &&
+        typeof requestRaw.res.end === 'function' &&
+        !requestRaw.res.headersSent
+      ) {
+        requestRaw.res.statusCode = status;
+        if (requestRaw.res.setHeader) {
+          requestRaw.res.setHeader('Content-Type', 'application/json');
+        }
+        requestRaw.res.end(JSON.stringify(responsePayload));
+        return;
+      }
+
+      // If all methods fail, log error with more details
+      const replyAsRecord = reply as unknown as Record<string, unknown>;
+      const responseKeys = Object.keys(replyAsRecord).slice(0, 10).join(', ');
       this.logger.error(
-        `Failed to send error response - no valid response method found. Response type: ${typeof reply}, has code: ${typeof reply.code}, has status: ${typeof reply.status}, has send: ${typeof reply.send}, has raw: ${!!reply.raw}`,
+        `Failed to send error response - no valid response method found. Response type: ${typeof reply}, has code: ${typeof reply.code}, has status: ${typeof reply.status}, has send: ${typeof reply.send}, has raw: ${!!(reply as { raw?: unknown }).raw}, response keys: ${responseKeys}`,
         undefined,
         'ExceptionFilter',
         correlationId,
@@ -176,15 +223,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } catch (sendError) {
       // If sending fails, try raw response as last resort
       try {
-        const rawResponse = reply.raw;
+        const rawResponse =
+          (reply as { raw?: unknown }).raw ||
+          (response as { raw?: unknown }).raw;
+
         if (
           rawResponse &&
-          typeof rawResponse.end === 'function' &&
-          !rawResponse.headersSent
+          typeof rawResponse === 'object' &&
+          'end' in rawResponse &&
+          typeof (rawResponse as { end: unknown }).end === 'function' &&
+          !(rawResponse as { headersSent?: boolean }).headersSent
         ) {
-          rawResponse.statusCode = status;
-          rawResponse.setHeader('Content-Type', 'application/json');
-          rawResponse.end(JSON.stringify(responsePayload));
+          const nodeResponse = rawResponse as {
+            statusCode?: number;
+            // eslint-disable-next-line no-unused-vars
+            setHeader: (_name: string, _value: string) => void;
+            // eslint-disable-next-line no-unused-vars
+            end: (_chunk: string) => void;
+          };
+          nodeResponse.statusCode = status;
+          nodeResponse.setHeader('Content-Type', 'application/json');
+          nodeResponse.end(JSON.stringify(responsePayload));
         } else {
           this.logger.error(
             `Failed to send error response: ${sendError instanceof Error ? sendError.message : String(sendError)}`,
