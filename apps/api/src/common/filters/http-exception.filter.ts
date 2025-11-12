@@ -114,27 +114,68 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const reply = response as FastifyReply;
 
     // Use Fastify's reply methods: code() sets status, send() sends response
-    // If code() doesn't work, set statusCode directly
+    // Check for method existence before calling
     try {
-      if (typeof reply.code === 'function') {
+      // Try Fastify's code().send() chain first
+      if (
+        typeof reply.code === 'function' &&
+        typeof reply.send === 'function'
+      ) {
         reply.code(status).send(responsePayload);
-      } else {
-        // Fallback: set statusCode property and use send()
+        return;
+      }
+
+      // Try setting statusCode and using send()
+      if (typeof reply.send === 'function') {
         (reply as any).statusCode = status;
         reply.send(responsePayload);
+        return;
       }
-    } catch (sendError) {
-      // If Fastify methods fail, try raw Node.js response
+
+      // Fallback: use raw Node.js response
       const rawResponse = reply.raw;
-      if (rawResponse && !rawResponse.headersSent) {
+      if (
+        rawResponse &&
+        typeof rawResponse.end === 'function' &&
+        !rawResponse.headersSent
+      ) {
         rawResponse.statusCode = status;
         rawResponse.setHeader('Content-Type', 'application/json');
         rawResponse.end(JSON.stringify(responsePayload));
-      } else {
-        // Log the error but don't throw - we've already logged the exception
+        return;
+      }
+
+      // If all methods fail, log error
+      this.logger.error(
+        `Failed to send error response - no valid response method found. Response type: ${typeof reply}, has code: ${typeof reply.code}, has send: ${typeof reply.send}, has raw: ${!!reply.raw}`,
+        undefined,
+        'ExceptionFilter',
+        correlationId,
+      );
+    } catch (sendError) {
+      // If sending fails, try raw response as last resort
+      try {
+        const rawResponse = reply.raw;
+        if (
+          rawResponse &&
+          typeof rawResponse.end === 'function' &&
+          !rawResponse.headersSent
+        ) {
+          rawResponse.statusCode = status;
+          rawResponse.setHeader('Content-Type', 'application/json');
+          rawResponse.end(JSON.stringify(responsePayload));
+        } else {
+          this.logger.error(
+            `Failed to send error response: ${sendError instanceof Error ? sendError.message : String(sendError)}`,
+            sendError instanceof Error ? sendError.stack : undefined,
+            'ExceptionFilter',
+            correlationId,
+          );
+        }
+      } catch (finalError) {
         this.logger.error(
-          `Failed to send error response: ${sendError instanceof Error ? sendError.message : String(sendError)}`,
-          sendError instanceof Error ? sendError.stack : undefined,
+          `Complete failure to send error response: ${finalError instanceof Error ? finalError.message : String(finalError)}`,
+          finalError instanceof Error ? finalError.stack : undefined,
           'ExceptionFilter',
           correlationId,
         );
