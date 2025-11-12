@@ -102,12 +102,36 @@ export class HttpExceptionFilter implements ExceptionFilter {
       );
     }
 
-    // Send response (Fastify uses .code() to set HTTP status code)
-    response.code(status).send({
+    // Send response (Fastify: use response directly, fallback to raw if needed)
+    const responsePayload = {
       ...errorResponse,
       correlationId,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    // Set status code directly on response object
+    (response as any).statusCode = status;
+
+    // Try to send using Fastify's send method
+    if (typeof (response as any).send === 'function') {
+      (response as any).send(responsePayload);
+    } else {
+      // Fallback: use raw Node.js response
+      const rawResponse = (response as any).raw;
+      if (rawResponse) {
+        rawResponse.statusCode = status;
+        rawResponse.setHeader('Content-Type', 'application/json');
+        rawResponse.end(JSON.stringify(responsePayload));
+      } else {
+        // Last resort: log error and try to send anyway
+        this.logger.error(
+          'Unable to send error response - response object methods not available',
+          undefined,
+          'ExceptionFilter',
+          correlationId,
+        );
+      }
+    }
   }
 
   private sanitizeBody(body: unknown): unknown {
