@@ -9,6 +9,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { validateEnv } from '@planday/config';
 
@@ -141,18 +142,31 @@ async function bootstrap() {
     exclude: ['/'],
   });
 
-  // Swagger documentation (disabled temporarily)
-  // if (env.NODE_ENV === 'development') {
-  //   const config = new DocumentBuilder()
-  //     .setTitle('Planday Clone API')
-  //     .setDescription('Workforce Management System REST API')
-  //     .setVersion('1.0')
-  //     .addBearerAuth()
-  //     .build();
+  // Swagger documentation
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('QuantumShift Planner API')
+    .setDescription('Workforce Management System REST API')
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth', // This name here is important for matching up with @ApiBearerAuth() in your controller!
+    )
+    .addTag('Health', 'Health check endpoints')
+    .build();
 
-  //   const document = SwaggerModule.createDocument(app, config);
-  //   SwaggerModule.setup('api/docs', app, document);
-  // }
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document, {
+    customSiteTitle: 'QuantumShift API Docs',
+    customfavIcon: '/favicon.ico',
+    customCss: '.swagger-ui .topbar { display: none }',
+  });
 
   const port = parseInt(env.PORT, 10) || 4000;
   await app.listen(port, '0.0.0.0');

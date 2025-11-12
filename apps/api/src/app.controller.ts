@@ -1,9 +1,16 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Root')
 @Controller()
 export class AppController {
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Root endpoint - API information' })
+  @ApiResponse({
+    status: 200,
+    description: 'API is running and returns basic information',
+  })
   getRoot() {
     // Root endpoint for health check probes
     return {
