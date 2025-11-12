@@ -38,23 +38,45 @@ export class LoggingInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap({
         next: () => {
-          const responseTime = Date.now() - startTime;
-          const response = context.switchToHttp().getResponse();
-          const statusCode = response.statusCode;
+          try {
+            const responseTime = Date.now() - startTime;
+            const response = context.switchToHttp().getResponse();
 
-          // Log outgoing response
-          this.logger.logWithMeta(
-            'info',
-            `Outgoing response: ${method} ${url} ${statusCode}`,
-            {
-              method,
-              url,
-              statusCode,
-              responseTime: `${responseTime}ms`,
-            },
-            'HTTP',
-            correlationId,
-          );
+            // Get status code - Fastify uses statusCode property, may not be set immediately
+            // Try multiple ways to get the status code safely
+            let statusCode = 200; // Default to 200 if we can't determine
+            try {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const responseAny = response as any;
+              statusCode =
+                responseAny.statusCode || responseAny.raw?.statusCode || 200;
+            } catch {
+              // If we can't access statusCode, default to 200
+              statusCode = 200;
+            }
+
+            // Log outgoing response
+            this.logger.logWithMeta(
+              'info',
+              `Outgoing response: ${method} ${url} ${statusCode}`,
+              {
+                method,
+                url,
+                statusCode,
+                responseTime: `${responseTime}ms`,
+              },
+              'HTTP',
+              correlationId,
+            );
+          } catch {
+            // Don't let logging errors break the request
+            // Just log a simple message if detailed logging fails
+            this.logger.warn(
+              `Failed to log response for ${method} ${url}`,
+              'HTTP',
+              correlationId,
+            );
+          }
         },
         error: (error) => {
           this.logger.error(

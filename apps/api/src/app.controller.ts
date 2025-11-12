@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 
 @Controller()
 export class AppController {
   @Get()
+  @HttpCode(HttpStatus.OK)
   getRoot() {
     // Root endpoint for health check probes
     return {
