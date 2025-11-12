@@ -60,6 +60,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.getResponse()
         : 'Internal server error';
 
+    // Log the actual exception for debugging (especially for non-HTTP exceptions)
+    if (!(exception instanceof HttpException)) {
+      this.logger.error(
+        `Non-HTTP exception caught: ${exception instanceof Error ? exception.message : String(exception)}`,
+        exception instanceof Error ? exception.stack : undefined,
+        'ExceptionFilter',
+        correlationId,
+      );
+    }
+
     // Extract error details
     const errorResponse =
       typeof message === 'string'
