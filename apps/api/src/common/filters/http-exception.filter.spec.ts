@@ -12,7 +12,14 @@ type MockLogger = Pick<
   'error' | 'warn' | 'log' | 'logWithMeta'
 >;
 
-type MockResponse = Pick<FastifyReply, 'status' | 'send'>;
+// Mock response with both Fastify native (code) and NestJS compatibility (status) methods
+type MockResponse = Pick<FastifyReply, 'send'> & {
+  // eslint-disable-next-line no-unused-vars
+  code?: (statusCode: number) => MockResponse;
+  // eslint-disable-next-line no-unused-vars
+  status: (statusCode: number) => MockResponse;
+  raw?: unknown;
+};
 
 type MockRequest = {
   method: string;
@@ -41,8 +48,11 @@ describe('HttpExceptionFilter', () => {
     };
 
     mockResponse = {
+      // code() is Fastify native, but not present in NestJS wrapper for these tests
+      // status() is NestJS compatibility wrapper (returns this for chaining)
       status: vi.fn().mockReturnThis(),
       send: vi.fn(),
+      raw: undefined, // Not used in these tests
     };
 
     mockRequest = {

@@ -114,6 +114,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const reply = response as FastifyReply;
 
     // Use Fastify's reply methods: code() sets status, send() sends response
+    // NestJS Fastify adapter also provides status() for compatibility
     // Check for method existence before calling
     try {
       // Try Fastify's code().send() chain first
@@ -122,6 +123,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
         typeof reply.send === 'function'
       ) {
         reply.code(status).send(responsePayload);
+        return;
+      }
+
+      // Try NestJS compatibility wrapper status().send() chain
+      if (
+        typeof (reply as any).status === 'function' &&
+        typeof reply.send === 'function'
+      ) {
+        (reply as any).status(status).send(responsePayload);
         return;
       }
 
@@ -147,7 +157,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       // If all methods fail, log error
       this.logger.error(
-        `Failed to send error response - no valid response method found. Response type: ${typeof reply}, has code: ${typeof reply.code}, has send: ${typeof reply.send}, has raw: ${!!reply.raw}`,
+        `Failed to send error response - no valid response method found. Response type: ${typeof reply}, has code: ${typeof reply.code}, has status: ${typeof (reply as any).status}, has send: ${typeof reply.send}, has raw: ${!!reply.raw}`,
         undefined,
         'ExceptionFilter',
         correlationId,
