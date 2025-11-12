@@ -102,31 +102,39 @@ export class HttpExceptionFilter implements ExceptionFilter {
       );
     }
 
-    // Send response (Fastify: use response directly, fallback to raw if needed)
+    // Send response - Fastify reply object
     const responsePayload = {
       ...errorResponse,
       correlationId,
       timestamp: new Date().toISOString(),
     };
 
-    // Set status code directly on response object
-    (response as any).statusCode = status;
+    // For Fastify, we need to use the reply object's methods
+    // NestJS wraps FastifyReply, but the methods should still be accessible
+    const reply = response as FastifyReply;
 
-    // Try to send using Fastify's send method
-    if (typeof (response as any).send === 'function') {
-      (response as any).send(responsePayload);
-    } else {
-      // Fallback: use raw Node.js response
-      const rawResponse = (response as any).raw;
-      if (rawResponse) {
+    // Use Fastify's reply methods: code() sets status, send() sends response
+    // If code() doesn't work, set statusCode directly
+    try {
+      if (typeof reply.code === 'function') {
+        reply.code(status).send(responsePayload);
+      } else {
+        // Fallback: set statusCode property and use send()
+        (reply as any).statusCode = status;
+        reply.send(responsePayload);
+      }
+    } catch (sendError) {
+      // If Fastify methods fail, try raw Node.js response
+      const rawResponse = reply.raw;
+      if (rawResponse && !rawResponse.headersSent) {
         rawResponse.statusCode = status;
         rawResponse.setHeader('Content-Type', 'application/json');
         rawResponse.end(JSON.stringify(responsePayload));
       } else {
-        // Last resort: log error and try to send anyway
+        // Log the error but don't throw - we've already logged the exception
         this.logger.error(
-          'Unable to send error response - response object methods not available',
-          undefined,
+          `Failed to send error response: ${sendError instanceof Error ? sendError.message : String(sendError)}`,
+          sendError instanceof Error ? sendError.stack : undefined,
           'ExceptionFilter',
           correlationId,
         );
